@@ -1,0 +1,106 @@
+INFO:     Will watch for changes in these directories: ['/app']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [39716] using StatReload
+2025-12-04 20:05:32,814 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-04 20:05:32,815 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("usuarios")
+2025-12-04 20:05:32,815 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,817 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("usuarios")
+2025-12-04 20:05:32,817 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,818 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("notarias")
+2025-12-04 20:05:32,818 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,818 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("notarias")
+2025-12-04 20:05:32,818 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,818 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("notaria_servicios_generales")
+2025-12-04 20:05:32,818 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,819 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("notaria_servicios_generales")
+2025-12-04 20:05:32,819 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,819 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("servicios_detallados")
+2025-12-04 20:05:32,819 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,819 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("servicios_detallados")
+2025-12-04 20:05:32,819 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,819 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("comentarios")
+2025-12-04 20:05:32,820 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,820 INFO sqlalchemy.engine.Engine PRAGMA temp.table_info("comentarios")
+2025-12-04 20:05:32,820 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 20:05:32,821 INFO sqlalchemy.engine.Engine
+CREATE TABLE usuarios (
+	id VARCHAR(128) NOT NULL,
+	nombre VARCHAR(255),
+	correo VARCHAR(255) NOT NULL,
+	foto_url TEXT,
+	es_admin BOOLEAN NOT NULL,
+	creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	hashed_password VARCHAR(255),
+	PRIMARY KEY (id)
+)
+
+
+2025-12-04 20:05:32,821 INFO sqlalchemy.engine.Engine [no key 0.00016s] ()
+2025-12-04 20:05:32,826 INFO sqlalchemy.engine.Engine CREATE UNIQUE INDEX ix_usuarios_correo ON usuarios (correo)
+2025-12-04 20:05:32,826 INFO sqlalchemy.engine.Engine [no key 0.00020s] ()
+2025-12-04 20:05:32,830 INFO sqlalchemy.engine.Engine
+CREATE TABLE notarias (
+	id INTEGER NOT NULL,
+	nombre VARCHAR(255) NOT NULL,
+	direccion VARCHAR(255) NOT NULL,
+	distrito VARCHAR(100) NOT NULL,
+	telefono VARCHAR(20) NOT NULL,
+	telefono_fijo VARCHAR(20),
+	correo VARCHAR(255) NOT NULL,
+	sitio_web VARCHAR(255),
+	facebook_url VARCHAR(255),
+	instagram_url VARCHAR(255),
+	tiktok_url VARCHAR(255),
+	linkedin_url VARCHAR(255),
+	disponible BOOLEAN NOT NULL,
+	avatar_url TEXT,
+	calificacion DECIMAL(3, 2) NOT NULL,
+	observaciones TEXT,
+	resumen_coment TEXT,
+	creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	PRIMARY KEY (id)
+)
+
+
+2025-12-04 20:05:32,830 INFO sqlalchemy.engine.Engine [no key 0.00020s] ()
+2025-12-04 20:05:32,833 INFO sqlalchemy.engine.Engine
+CREATE TABLE notaria_servicios_generales (
+	notaria_id INTEGER NOT NULL,
+	servicio VARCHAR(100) NOT NULL,
+	PRIMARY KEY (notaria_id, servicio),
+	FOREIGN KEY(notaria_id) REFERENCES notarias (id) ON DELETE CASCADE ON UPDATE CASCADE
+)
+
+
+2025-12-04 20:05:32,834 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-12-04 20:05:32,836 INFO sqlalchemy.engine.Engine
+CREATE TABLE servicios_detallados (
+	id INTEGER NOT NULL,
+	notaria_id INTEGER NOT NULL,
+	slug VARCHAR(255) NOT NULL,
+	nombre VARCHAR(255) NOT NULL,
+	precio DECIMAL(10, 2),
+	requisitos JSON,
+	imagenes JSON,
+	video_url TEXT,
+	PRIMARY KEY (id),
+	FOREIGN KEY(notaria_id) REFERENCES notarias (id) ON DELETE CASCADE ON UPDATE CASCADE
+)
+
+
+2025-12-04 20:05:32,836 INFO sqlalchemy.engine.Engine [no key 0.00017s] ()
+2025-12-04 20:05:32,840 INFO sqlalchemy.engine.Engine
+CREATE TABLE comentarios (
+	id INTEGER NOT NULL,
+	notaria_id INTEGER NOT NULL,
+	usuario_id VARCHAR(128) NOT NULL,
+	puntaje INTEGER NOT NULL,
+	texto TEXT NOT NULL,
+	creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY(notaria_id) REFERENCES notarias (id) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY(usuario_id) REFERENCES usuarios (id) ON DELETE CASCADE ON UPDATE CASCADE
+)
+
+
+2025-12-04 20:05:32,840 INFO sqlalchemy.engine.Engine [no key 0.00019s] ()
