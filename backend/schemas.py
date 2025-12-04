@@ -86,6 +86,7 @@ class NotariaCreate(NotariaBase):
     tiktokUrl: Optional[str] = Field(default=None, alias="tiktok_url")
     linkedinUrl: Optional[str] = Field(default=None, alias="linkedin_url")
     observations: Optional[str] = Field(default=None, alias="observaciones")
+    detailedServices: Optional[List[ServicioDetallado]] = Field(default=None, alias="servicios_detallados")
 
 class Notaria(NotariaBase):
     id: int # ID es int en MySQL
