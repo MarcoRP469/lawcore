@@ -39,24 +39,35 @@ def read_notaria(notaria_id: int, db: Session = Depends(database.get_db)):
 @router.post("/", response_model=schemas.Notaria)
 def create_notaria(notaria: schemas.NotariaCreate, db: Session = Depends(database.get_db)):
     # Crear objeto Notaria sin los servicios primero
-    notaria_data = notaria.dict(exclude={"services"})
-    # Mapear claves de Pydantic (camelCase/alias) a DB (snake_case/español)
-    # Como usamos alias en Pydantic, .dict(by_alias=True) daría las claves en español 'nombre', 'direccion'...
-    # que coinciden con los argumentos del modelo SQLAlchemy.
-    db_args = notaria.dict(by_alias=True, exclude={"services"})
+    # Excluimos services (generales) y detailedServices (detallados) para crear la notaria base
+    db_args = notaria.dict(by_alias=True, exclude={"services", "detailedServices"})
     
     db_notaria = models.Notaria(**db_args)
     db.add(db_notaria)
     db.commit()
     db.refresh(db_notaria)
     
-    # Agregar servicios
-    for servicio_nombre in notaria.services:
-        nuevo_servicio = models.NotariaServicioGeneral(notaria_id=db_notaria.id, servicio=servicio_nombre)
-        db.add(nuevo_servicio)
+    # Agregar servicios generales
+    if notaria.services:
+        for servicio_nombre in notaria.services:
+            nuevo_servicio = models.NotariaServicioGeneral(notaria_id=db_notaria.id, servicio=servicio_nombre)
+            db.add(nuevo_servicio)
+
+    # Agregar servicios detallados
+    if notaria.detailedServices:
+        for ds in notaria.detailedServices:
+            # ds es un objeto Pydantic (ServicioDetallado), lo convertimos a dict para el modelo DB
+            ds_data = ds.dict(by_alias=True)
+            # Asegurar que mapee correctamente
+            nuevo_detalle = models.ServicioDetallado(
+                notaria_id=db_notaria.id,
+                **ds_data
+            )
+            db.add(nuevo_detalle)
     
     db.commit()
     db.refresh(db_notaria) # Recargar para traer las relaciones
     
+    # Inyectar servicios generales manualmente para la respuesta (ya que no es un campo de columna)
     db_notaria.services = [s.servicio for s in db_notaria.servicios_generales]
     return db_notaria
