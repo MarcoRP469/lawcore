@@ -71,3 +71,46 @@ def create_notaria(notaria: schemas.NotariaCreate, db: Session = Depends(databas
     # Inyectar servicios generales manualmente para la respuesta (ya que no es un campo de columna)
     db_notaria.services = [s.servicio for s in db_notaria.servicios_generales]
     return db_notaria
+
+@router.put("/{notaria_id}", response_model=schemas.Notaria)
+def update_notaria(notaria_id: int, notaria: schemas.NotariaCreate, db: Session = Depends(database.get_db)):
+    db_notaria = db.query(models.Notaria).filter(models.Notaria.id == notaria_id).first()
+    if not db_notaria:
+        raise HTTPException(status_code=404, detail="Notaria not found")
+
+    # Update basic fields
+    # Excluimos services y detailedServices para actualizar solo columnas de la tabla notarias
+    notaria_data = notaria.dict(by_alias=True, exclude={"services", "detailedServices"})
+    for key, value in notaria_data.items():
+        setattr(db_notaria, key, value)
+
+    # Update Services (delete all and re-add)
+    # 1. Clear existing
+    db.query(models.NotariaServicioGeneral).filter(models.NotariaServicioGeneral.notaria_id == notaria_id).delete()
+
+    # 2. Add new
+    if notaria.services:
+        for servicio_nombre in notaria.services:
+            nuevo_servicio = models.NotariaServicioGeneral(notaria_id=db_notaria.id, servicio=servicio_nombre)
+            db.add(nuevo_servicio)
+
+    # Update Detailed Services (delete all and re-add)
+    # 1. Clear existing
+    db.query(models.ServicioDetallado).filter(models.ServicioDetallado.notaria_id == notaria_id).delete()
+
+    # 2. Add new
+    if notaria.detailedServices:
+        for ds in notaria.detailedServices:
+             ds_data = ds.dict(by_alias=True)
+             nuevo_detalle = models.ServicioDetallado(
+                notaria_id=db_notaria.id,
+                **ds_data
+            )
+             db.add(nuevo_detalle)
+
+    db.commit()
+    db.refresh(db_notaria)
+
+    # Inject manually
+    db_notaria.services = [s.servicio for s in db_notaria.servicios_generales]
+    return db_notaria
