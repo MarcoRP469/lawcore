@@ -208,7 +208,7 @@ export default function PaginaDetalleNotaria() {
                             {notary.available ? "Disponible Ahora" : "No Disponible"}
                         </Badge>
                         {notary.observations && (
-                            <p className="pt-2 text-center text-xs text-muted-foreground italic">"{notary.observations}"</p>
+                            <p className="pt-2 text-center text-xs text-muted-foreground italic">&ldquo;{notary.observations}&rdquo;</p>
                         )}
                     </CardContent>
                  </Card>
