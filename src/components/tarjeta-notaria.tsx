@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Phone, Mail, MapPin, Star, Info, Globe, MessageSquareQuote, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Phone, Mail, MapPin, Star, Info, Globe, MessageSquareQuote, Facebook, Instagram, Linkedin, User } from "lucide-react";
 import type { Notaria } from "@/core/tipos";
 import { TODOS_LOS_SERVICIOS } from "@/core/datos";
 import { cn } from "@/lib/utils";
@@ -28,9 +28,10 @@ interface TarjetaNotariaProps {
 }
 
 const CalificacionEstrellas = ({ rating }: { rating: number }) => {
+  const safeRating = rating || 0;
   const totalStars = 5;
-  const fullStars = Math.floor(rating);
-  const partialStarPercentage = Math.round((rating - fullStars) * 100);
+  const fullStars = Math.floor(safeRating);
+  const partialStarPercentage = Math.round((safeRating - fullStars) * 100);
 
   return (
     <div className="flex items-center">
@@ -54,7 +55,7 @@ const CalificacionEstrellas = ({ rating }: { rating: number }) => {
         }
         return <Star key={i} className="h-4 w-4 fill-muted text-border" />;
       })}
-       <span className="ml-2 text-sm font-semibold text-card-foreground">{rating.toFixed(1)}</span>
+       <span className="ml-2 text-sm font-semibold text-card-foreground">{safeRating.toFixed(1)}</span>
     </div>
   );
 };
@@ -105,14 +106,20 @@ export default function TarjetaNotaria({ notary, onCompareToggle, isComparing }:
             className="flex flex-col h-full transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1 bg-card text-card-foreground cursor-pointer"
         >
         <CardHeader className="flex-row gap-4 items-start">
-          <Image
-            src={notary.avatarUrl}
-            alt={`Avatar de ${notary.name}`}
-            width={80}
-            height={80}
-            className="rounded-full border-2 border-primary/20"
-            data-ai-hint="professional portrait"
-          />
+          {notary.avatarUrl && notary.avatarUrl.trim() !== "" ? (
+            <Image
+              src={notary.avatarUrl}
+              alt={`Avatar de ${notary.name}`}
+              width={80}
+              height={80}
+              className="rounded-full border-2 border-primary/20 object-cover"
+              data-ai-hint="professional portrait"
+            />
+          ) : (
+             <div className="flex items-center justify-center min-w-[80px] min-h-[80px] rounded-full border-2 border-primary/20 bg-muted">
+               <User className="w-10 h-10 text-muted-foreground" />
+             </div>
+          )}
           <div className="flex-1">
             <CardTitle className="text-xl font-headline text-primary">{notary.name}</CardTitle>
             <CardDescription className="flex items-center gap-2 mt-1 text-card-foreground/90">
@@ -122,7 +129,7 @@ export default function TarjetaNotaria({ notary, onCompareToggle, isComparing }:
                 <Badge variant={notary.available ? "default" : "secondary"} className={notary.available ? "bg-green-500 hover:bg-green-600 text-white" : ""}>
                   {notary.available ? "Disponible" : "No disponible"}
                 </Badge>
-                <CalificacionEstrellas rating={notary.rating} />
+                <CalificacionEstrellas rating={notary.rating || 0} />
               </div>
           </div>
         </CardHeader>
