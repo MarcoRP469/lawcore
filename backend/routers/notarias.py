@@ -52,7 +52,7 @@ def create_notaria(notaria: schemas.NotariaCreate, db: Session = Depends(databas
         for servicio_nombre in notaria.services:
             nuevo_servicio = models.NotariaServicioGeneral(notaria_id=db_notaria.id, servicio=servicio_nombre)
             db.add(nuevo_servicio)
-
+    
     # Agregar servicios detallados
     if notaria.detailedServices:
         for ds in notaria.detailedServices:
