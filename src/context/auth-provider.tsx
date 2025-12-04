@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import api from "@/services/api";
 import { useRouter } from "next/navigation";
 
@@ -43,11 +43,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    checkUser();
-  }, []);
+  const logout = useCallback(async () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_data");
+    setUser(null);
+    router.push("/");
+  }, [router]);
 
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) {
       setLoading(false);
@@ -75,7 +78,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [logout]);
+
+  useEffect(() => {
+    void checkUser();
+  }, [checkUser]);
 
   const login = async (email: string, password: string) => {
     try {
@@ -130,13 +137,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error("Register error", error);
       throw error;
     }
-  };
-
-  const logout = async () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_data");
-    setUser(null);
-    router.push("/");
   };
 
   return (
