@@ -168,13 +168,13 @@ export default function TarjetaNotaria({ notary, onCompareToggle, isComparing }:
             </div>
           </div>
 
-           {notary.commentSummary && (
+          {notary.commentSummary && (
             <div className="w-full pt-4">
               <h4 className="font-semibold mb-2 text-sm flex items-center gap-2 text-primary">
                 <MessageSquareQuote className="h-4 w-4" />
                 Resumen de Opiniones
               </h4>
-              <p className="text-xs text-muted-foreground italic">"{notary.commentSummary}"</p>
+              <p className="text-xs text-muted-foreground italic">&ldquo;{notary.commentSummary}&rdquo;</p>
             </div>
           )}
         </CardContent>
