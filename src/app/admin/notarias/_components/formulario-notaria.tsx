@@ -203,6 +203,15 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
     const defaultValues: Partial<ValoresFormularioNotaria> = notaria
       ? {
           ...notaria,
+          name: notaria.name || "",
+          address: notaria.address || "",
+          district: notaria.district || "",
+          phone: notaria.phone || "",
+          email: notaria.email || "",
+          available: notaria.available || false,
+          services: notaria.services || [],
+          avatarUrl: notaria.avatarUrl || "",
+          observations: notaria.observations || "",
           website: notaria.website || "",
           facebookUrl: notaria.facebookUrl || "",
           instagramUrl: notaria.instagramUrl || "",
@@ -212,6 +221,9 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
           rating: notaria.rating || 0,
           detailedServices: (notaria.detailedServices || []).map((s) => ({
             ...s,
+            name: s.name || "",
+            slug: s.slug || "",
+            requisitos: s.requisitos || [],
             images: s.images || [],
             videoUrl: s.videoUrl || "",
             price: s.price === undefined ? "" : s.price,
