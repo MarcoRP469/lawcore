@@ -114,3 +114,13 @@ def update_notaria(notaria_id: int, notaria: schemas.NotariaCreate, db: Session 
     # Inject manually
     db_notaria.services = [s.servicio for s in db_notaria.servicios_generales]
     return db_notaria
+
+@router.delete("/{notaria_id}")
+def delete_notaria(notaria_id: int, db: Session = Depends(database.get_db)):
+    notaria = db.query(models.Notaria).filter(models.Notaria.id == notaria_id).first()
+    if not notaria:
+        raise HTTPException(status_code=404, detail="Notaria not found")
+
+    db.delete(notaria)
+    db.commit()
+    return {"message": "Notaria eliminada exitosamente"}
