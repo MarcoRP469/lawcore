@@ -290,7 +290,7 @@ export default function PaginaMetricasDashboard() {
             ) : resumenSeleccionado ? (
                 <CardContent className="space-y-2">
                     <h4 className="font-semibold">Resumen Generado por IA:</h4>
-                    <p className="text-sm text-muted-foreground italic">"{resumenSeleccionado}"</p>
+                    <p className="text-sm text-muted-foreground italic">&ldquo;{resumenSeleccionado}&rdquo;</p>
                 </CardContent>
             ) : null}
             </Card>
