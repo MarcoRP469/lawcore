@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .routers import auth, notarias, comentarios
+from .routers import auth, notarias, comentarios, usuarios
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)
@@ -31,6 +31,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(notarias.router, prefix="/notarias", tags=["notarias"])
 app.include_router(comentarios.router, prefix="/comentarios", tags=["comentarios"])
+app.include_router(usuarios.router)
 
 @app.get("/")
 def read_root():

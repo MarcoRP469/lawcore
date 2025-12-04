@@ -6,22 +6,39 @@ import uuid
 
 router = APIRouter()
 
+FIELD_MAPPING = {
+    "name": "nombre",
+    "address": "direccion",
+    "district": "distrito",
+    "phone": "telefono",
+    "email": "correo",
+    "available": "disponible",
+    "avatarUrl": "avatar_url",
+    "rating": "calificacion",
+    "landline": "telefono_fijo",
+    "website": "sitio_web",
+    "facebookUrl": "facebook_url",
+    "instagramUrl": "instagram_url",
+    "tiktokUrl": "tiktok_url",
+    "linkedinUrl": "linkedin_url",
+    "observations": "observaciones",
+    "commentSummary": "resumen_coment",
+    "createdAt": "creado_en"
+}
+
+def map_schema_to_model(data: dict) -> dict:
+    return {FIELD_MAPPING.get(k, k): v for k, v in data.items()}
+
 @router.get("/", response_model=List[schemas.Notaria])
 def read_notarias(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):
     notarias_db = db.query(models.Notaria).offset(skip).limit(limit).all()
     
-    # Mapeo manual si es necesario, o dejar que Pydantic lo haga con 'from_attributes'
-    # Pydantic debería mapear 'servicios_generales' (lista de objetos) a 'services' (lista de strings) si lo configuramos.
-    # Pero como la estructura es diferente (Obj vs Str), mejor lo hacemos explícito o usamos un validador en Pydantic.
-    # Aquí lo haré transformando los objetos antes de retornarlos.
-    
     resultados = []
     for n in notarias_db:
-        # Extraer solo el nombre del servicio para la lista de strings
+        # Pydantic ORM mode will read fields from 'n' using validation_alias (e.g. 'nombre')
+        # and serialize them using field name (e.g. 'name').
+        # However, 'services' is not on 'n', so we inject it.
         servicios_list = [s.servicio for s in n.servicios_generales]
-        
-        # Pydantic usará los alias para mapear n.nombre -> name, n.direccion -> address, etc.
-        # Pero necesitamos inyectar 'services' manualmente porque no existe en el modelo DB como tal.
         n.services = servicios_list
         resultados.append(n)
         
@@ -38,25 +55,94 @@ def read_notaria(notaria_id: int, db: Session = Depends(database.get_db)):
 
 @router.post("/", response_model=schemas.Notaria)
 def create_notaria(notaria: schemas.NotariaCreate, db: Session = Depends(database.get_db)):
-    # Crear objeto Notaria sin los servicios primero
-    notaria_data = notaria.dict(exclude={"services"})
-    # Mapear claves de Pydantic (camelCase/alias) a DB (snake_case/español)
-    # Como usamos alias en Pydantic, .dict(by_alias=True) daría las claves en español 'nombre', 'direccion'...
-    # que coinciden con los argumentos del modelo SQLAlchemy.
-    db_args = notaria.dict(by_alias=True, exclude={"services"})
+    # Get English keys
+    db_args = notaria.dict(exclude={"services", "detailedServices"})
+    # Map to Spanish DB keys
+    db_args_mapped = map_schema_to_model(db_args)
     
-    db_notaria = models.Notaria(**db_args)
+    db_notaria = models.Notaria(**db_args_mapped)
     db.add(db_notaria)
     db.commit()
     db.refresh(db_notaria)
     
-    # Agregar servicios
-    for servicio_nombre in notaria.services:
-        nuevo_servicio = models.NotariaServicioGeneral(notaria_id=db_notaria.id, servicio=servicio_nombre)
-        db.add(nuevo_servicio)
+    if notaria.services:
+        for servicio_nombre in notaria.services:
+            nuevo_servicio = models.NotariaServicioGeneral(notaria_id=db_notaria.id, servicio=servicio_nombre)
+            db.add(nuevo_servicio)
+
+    if notaria.detailedServices:
+        for ds in notaria.detailedServices:
+            ds_data = ds.dict()
+            ds_mapping = {
+                "name": "nombre",
+                "price": "precio",
+                "images": "imagenes",
+                "videoUrl": "video_url"
+            }
+            ds_data_mapped = {ds_mapping.get(k, k): v for k, v in ds_data.items()}
+
+            nuevo_detalle = models.ServicioDetallado(
+                notaria_id=db_notaria.id,
+                **ds_data_mapped
+            )
+            db.add(nuevo_detalle)
     
     db.commit()
-    db.refresh(db_notaria) # Recargar para traer las relaciones
+    db.refresh(db_notaria)
     
     db_notaria.services = [s.servicio for s in db_notaria.servicios_generales]
     return db_notaria
+
+@router.put("/{notaria_id}", response_model=schemas.Notaria)
+def update_notaria(notaria_id: int, notaria: schemas.NotariaCreate, db: Session = Depends(database.get_db)):
+    db_notaria = db.query(models.Notaria).filter(models.Notaria.id == notaria_id).first()
+    if not db_notaria:
+        raise HTTPException(status_code=404, detail="Notaria not found")
+
+    notaria_data = notaria.dict(exclude={"services", "detailedServices"})
+    notaria_data_mapped = map_schema_to_model(notaria_data)
+
+    for key, value in notaria_data_mapped.items():
+        setattr(db_notaria, key, value)
+
+    # Update Services
+    db.query(models.NotariaServicioGeneral).filter(models.NotariaServicioGeneral.notaria_id == notaria_id).delete()
+    if notaria.services:
+        for servicio_nombre in notaria.services:
+            nuevo_servicio = models.NotariaServicioGeneral(notaria_id=db_notaria.id, servicio=servicio_nombre)
+            db.add(nuevo_servicio)
+
+    # Update Detailed Services
+    db.query(models.ServicioDetallado).filter(models.ServicioDetallado.notaria_id == notaria_id).delete()
+    if notaria.detailedServices:
+        for ds in notaria.detailedServices:
+             ds_data = ds.dict()
+             ds_mapping = {
+                "name": "nombre",
+                "price": "precio",
+                "images": "imagenes",
+                "videoUrl": "video_url"
+            }
+             ds_data_mapped = {ds_mapping.get(k, k): v for k, v in ds_data.items()}
+
+             nuevo_detalle = models.ServicioDetallado(
+                notaria_id=db_notaria.id,
+                **ds_data_mapped
+            )
+             db.add(nuevo_detalle)
+
+    db.commit()
+    db.refresh(db_notaria)
+
+    db_notaria.services = [s.servicio for s in db_notaria.servicios_generales]
+    return db_notaria
+
+@router.delete("/{notaria_id}")
+def delete_notaria(notaria_id: int, db: Session = Depends(database.get_db)):
+    notaria = db.query(models.Notaria).filter(models.Notaria.id == notaria_id).first()
+    if not notaria:
+        raise HTTPException(status_code=404, detail="Notaria not found")
+
+    db.delete(notaria)
+    db.commit()
+    return {"message": "Notaria eliminada exitosamente"}

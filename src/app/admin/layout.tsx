@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -11,7 +10,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useUser } from "@/context/auth-provider";
+import { useAuth } from "@/context/auth-provider";
 // import { useAdministrador } from "@/hooks/use-administrador"; // TODO
 
 export default function AdminLayout({
@@ -21,11 +20,12 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const user = useUser();
+  const { user, loading: authLoading } = useAuth();
+
   // Bypass isAdmin por ahora hasta tener lógica backend. Asumimos login = admin o check manual.
   // const { isAdmin, isLoading: isAdminLoading } = useAdministrador(); 
   const isAdmin = !!user; // TODO: Check real admin
-  const isAdminLoading = false;
+  const isAdminLoading = authLoading;
 
   const pageTitle = React.useMemo(() => {
     if (pathname?.startsWith("/admin/notarias")) {
