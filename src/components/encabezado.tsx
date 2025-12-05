@@ -83,7 +83,7 @@ export default function Encabezado() {
   const user = useUser();
   const { logout } = useAuth();
   // const { isAdmin, isLoading: isAdminLoading } = useAdministrador();
-  const isAdmin = !!user; // TODO
+  const isAdmin = user?.es_admin === true;
   const isAdminLoading = false;
   const [authDialogOpen, setAuthDialogOpen] = React.useState(false);
 
@@ -140,7 +140,7 @@ export default function Encabezado() {
                         <DropdownMenuItem asChild>
                           <Link href="/admin/dashboard">
                             <LayoutDashboard className="mr-2 h-4 w-4" />
-                            <span>Admin Dashboard</span>
+                            <span>Panel de Administrador</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
