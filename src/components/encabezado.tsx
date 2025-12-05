@@ -83,7 +83,8 @@ export default function Encabezado() {
   const user = useUser();
   const { logout } = useAuth();
   // const { isAdmin, isLoading: isAdminLoading } = useAdministrador();
-  const isAdmin = user?.es_admin === true;
+  const isSuperAdmin = user?.role === 'superadmin' || user?.es_admin === true;
+  const isAdminAccess = isSuperAdmin || user?.role === 'client';
   const isAdminLoading = false;
   const [authDialogOpen, setAuthDialogOpen] = React.useState(false);
 
@@ -135,17 +136,24 @@ export default function Encabezado() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    {isAdmin && !isAdminLoading && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/perfil">
+                        <span className="mr-2">👤</span>
+                        <span>Mi Perfil</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    {isAdminAccess && !isAdminLoading && (
                       <>
                         <DropdownMenuItem asChild>
                           <Link href="/admin/dashboard">
                             <LayoutDashboard className="mr-2 h-4 w-4" />
-                            <span>Panel de Administrador</span>
+                            <span>{isSuperAdmin ? 'Panel de Administrador' : 'Gestionar mi Notaría'}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                       </>
                     )}
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={handleSignOut}>
                       Cerrar sesión
                     </DropdownMenuItem>

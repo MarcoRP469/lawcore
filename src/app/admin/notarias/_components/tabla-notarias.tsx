@@ -54,9 +54,10 @@ import api from "@/services/api";
 interface TablaNotariasProps {
   data: Notaria[];
   onEdit: (notaria: Notaria) => void;
+  userRole?: string;
 }
 
-export default function TablaNotarias({ data, onEdit }: TablaNotariasProps) {
+export default function TablaNotarias({ data, onEdit, userRole }: TablaNotariasProps) {
   const { toast } = useToast();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -194,6 +195,8 @@ export default function TablaNotarias({ data, onEdit }: TablaNotariasProps) {
       enableHiding: false,
       cell: ({ row }) => {
         const notaria = row.original;
+        const isSuperAdmin = userRole === 'superadmin';
+        const isClient = userRole === 'client';
 
         return (
           <DropdownMenu>
@@ -209,13 +212,16 @@ export default function TablaNotarias({ data, onEdit }: TablaNotariasProps) {
                 <Edit className="mr-2 h-4 w-4" />
                 Editar
               </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive-foreground focus:bg-destructive"
-                onClick={() => handleDeleteClick(notaria)}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Eliminar
-              </DropdownMenuItem>
+              {/* Solo SuperAdmin puede eliminar */}
+              {isSuperAdmin && (
+                <DropdownMenuItem
+                    className="text-destructive focus:text-destructive-foreground focus:bg-destructive"
+                    onClick={() => handleDeleteClick(notaria)}
+                >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Eliminar
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
