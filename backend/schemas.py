@@ -63,14 +63,14 @@ class NotariaBase(BaseConfigModel):
     rating: float = Field(default=0.0, validation_alias="calificacion")
 
 class NotariaCreate(NotariaBase):
-    landline: Optional[str] = Field(default=None, validation_alias="telefono_fijo")
-    website: Optional[str] = Field(default=None, validation_alias="sitio_web")
-    facebookUrl: Optional[str] = Field(default=None, validation_alias="facebook_url")
-    instagramUrl: Optional[str] = Field(default=None, validation_alias="instagram_url")
-    tiktokUrl: Optional[str] = Field(default=None, validation_alias="tiktok_url")
-    linkedinUrl: Optional[str] = Field(default=None, validation_alias="linkedin_url")
-    observations: Optional[str] = Field(default=None, validation_alias="observaciones")
-    detailedServices: Optional[List[ServicioDetallado]] = Field(default=None, validation_alias="servicios_detallados")
+    landline: Optional[str] = Field(default=None, alias="telefono_fijo")
+    website: Optional[str] = Field(default=None, alias="sitio_web")
+    facebookUrl: Optional[str] = Field(default=None, alias="facebook_url")
+    instagramUrl: Optional[str] = Field(default=None, alias="instagram_url")
+    tiktokUrl: Optional[str] = Field(default=None, alias="tiktok_url")
+    linkedinUrl: Optional[str] = Field(default=None, alias="linkedin_url")
+    observations: Optional[str] = Field(default=None, alias="observaciones")
+    detailedServices: Optional[List[ServicioDetallado]] = Field(default=None, alias="servicios_detallados")
 
 class Notaria(NotariaBase):
     id: int
