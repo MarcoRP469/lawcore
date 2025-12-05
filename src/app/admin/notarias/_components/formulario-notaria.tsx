@@ -119,16 +119,15 @@ const slugify = (text: string) =>
     .replace(/\s+/g, "-")
     .replace(/[^\w-]+/g, "");
 
-const archivoADataUrl = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    if (file.size > 2 * 1024 * 1024) {
-      return reject(new Error("Imagen demasiado grande (máx 2MB)."));
-    }
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+const uploadImage = async (file: File): Promise<string> => {
+  if (file.size > 2 * 1024 * 1024) {
+    throw new Error("Imagen demasiado grande (máx 2MB).");
+  }
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post("/upload/", formData);
+  return response.data.url;
 };
 
 const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -297,19 +296,19 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
       // Avatar
       let finalAvatarUrl = data.avatarUrl;
       if (avatarFile) {
-        finalAvatarUrl = await archivoADataUrl(avatarFile);
+        finalAvatarUrl = await uploadImage(avatarFile);
       } else if (!imagePreview) {
         finalAvatarUrl = `https://picsum.photos/seed/${data.name}/100/100`;
       }
 
-      // Servicios detallados (subir imágenes a base64 si hay File)
+      // Servicios detallados (subir imágenes)
       const processedDetailedServices = await Promise.all(
         (data.detailedServices || []).map(async (service, serviceIndex) => {
           const finalImages = await Promise.all(
             (service.images || []).map(async (image, imageIndex) => {
               const file = detailedServiceFiles[serviceIndex]?.[imageIndex];
               if (file) {
-                return await archivoADataUrl(file);
+                return await uploadImage(file);
               }
               return image;
             })
