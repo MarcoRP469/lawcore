@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm  # <--- Importación clave para el botón
 from sqlalchemy.orm import Session
 from typing import List
 from .. import models, schemas, database
@@ -38,7 +39,7 @@ def register(user: schemas.UsuarioCreate, db: Session = Depends(database.get_db)
     
     hashed_password = get_password_hash(user.password)
     new_user = models.Usuario(
-        id=str(uuid.uuid4()), # Generamos UUID ya que la tabla pide VARCHAR(128)
+        id=str(uuid.uuid4()),
         correo=user.email,
         nombre=user.displayName,
         foto_url=user.photoURL,
@@ -51,15 +52,27 @@ def register(user: schemas.UsuarioCreate, db: Session = Depends(database.get_db)
     access_token = create_access_token(data={"sub": new_user.correo})
     return {"access_token": access_token, "token_type": "bearer"}
 
+# --- ESTA ES LA FUNCIÓN CORREGIDA PARA SWAGGER ---
 @router.post("/login", response_model=schemas.Token)
-def login(user_credentials: schemas.UsuarioCreate, db: Session = Depends(database.get_db)):
-    # Nota: UsuarioCreate pide nombre, pero para login solo necesitamos email/password.
-    # En un caso real usaríamos OAuth2PasswordRequestForm o un esquema Login separado.
-    user = db.query(models.Usuario).filter(models.Usuario.correo == user_credentials.email).first()
-    if not user:
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    if not verify_password(user_credentials.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+    # 1. Swagger envía el correo en el campo 'username'
+    user = db.query(models.Usuario).filter(models.Usuario.correo == form_data.username).first()
     
+    # 2. Validaciones
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales incorrectas",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    if not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales incorrectas",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # 3. Generar Token
     access_token = create_access_token(data={"sub": user.correo})
     return {"access_token": access_token, "token_type": "bearer"}

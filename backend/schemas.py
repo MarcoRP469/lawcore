@@ -59,7 +59,7 @@ class NotariaBase(BaseConfigModel):
     email: str = Field(validation_alias="correo")
     available: bool = Field(default=True, validation_alias="disponible")
     services: List[str]
-    avatarUrl: str = Field(validation_alias="avatar_url")
+    avatarUrl: Optional[str] = Field(default=None, validation_alias="avatar_url")
     rating: float = Field(default=0.0, validation_alias="calificacion")
 
 class NotariaCreate(NotariaBase):

@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
 from .routers import auth, notarias, comentarios, usuarios, upload
-
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Depends, HTTPException, status
 # Crear tablas
 Base.metadata.create_all(bind=engine)
 
