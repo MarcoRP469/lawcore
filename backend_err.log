@@ -1,0 +1,16 @@
+2025-12-04 22:27:01,791 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-04 22:27:01,791 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("usuarios")
+2025-12-04 22:27:01,791 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 22:27:01,792 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("notarias")
+2025-12-04 22:27:01,792 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 22:27:01,792 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("notaria_servicios_generales")
+2025-12-04 22:27:01,793 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 22:27:01,793 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("servicios_detallados")
+2025-12-04 22:27:01,793 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 22:27:01,793 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("comentarios")
+2025-12-04 22:27:01,793 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-04 22:27:01,794 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     Started server process [43760]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
