@@ -42,7 +42,9 @@ def register(user: schemas.UsuarioCreate, db: Session = Depends(database.get_db)
         correo=user.email,
         nombre=user.displayName,
         foto_url=user.photoURL,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        role="public",  # Default role
+        es_admin=False  # Sync
     )
     db.add(new_user)
     db.commit()
@@ -113,4 +115,5 @@ def get_current_user(token: str = Depends(database.oauth2_scheme), db: Session =
 
 @router.get("/me", response_model=schemas.Usuario)
 def read_users_me(current_user: models.Usuario = Depends(get_current_user)):
+    # Pydantic maps fields automatically. es_admin and role are included.
     return current_user

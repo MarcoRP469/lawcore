@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Shield, ShieldCheck } from "lucide-react";
+import { ArrowUpDown, ChevronDown, MoreHorizontal, Shield, ShieldCheck, UserCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -50,48 +50,46 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import api from "@/services/api";
 
+// Extender el tipo Usuario del Frontend para incluir role
+interface UsuarioExtendido extends Usuario {
+    role: 'superadmin' | 'client' | 'public';
+}
+
+interface TablaUsuariosProps {
+  data: UsuarioExtendido[];
+  admins?: string[]; // Deprecado, usamos role
+  currentUserId?: string | null;
+}
+
 const getInitials = (name?: string | null) => {
     if (!name) return "U";
     const names = name.split(' ');
     return names.map(n => n[0]).join('').toUpperCase();
 }
 
-interface UsuarioConEstadoAdmin extends Usuario {
-    isAdmin: boolean;
-}
-
-interface TablaUsuariosProps {
-  data: Usuario[];
-  admins: string[]; // Array of admin UIDs
-  currentUserId?: string | null;
-}
-
-export default function TablaUsuarios({ data, admins, currentUserId }: TablaUsuariosProps) {
+export default function TablaUsuarios({ data, currentUserId }: TablaUsuariosProps) {
   const { toast } = useToast();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = React.useState(false);
-  const [actionToConfirm, setActionToConfirm] = React.useState<{ user: Usuario, makeAdmin: boolean } | null>(null);
+  const [actionToConfirm, setActionToConfirm] = React.useState<{ user: UsuarioExtendido, newRole: string } | null>(null);
 
-  const handleRoleChangeClick = (user: Usuario, makeAdmin: boolean) => {
-    setActionToConfirm({ user, makeAdmin });
+  const handleRoleChangeClick = (user: UsuarioExtendido, newRole: string) => {
+    setActionToConfirm({ user, newRole });
     setIsConfirmDialogOpen(true);
   };
 
   const confirmRoleChange = async () => {
     if (actionToConfirm) {
-      const { user, makeAdmin } = actionToConfirm;
+      const { user, newRole } = actionToConfirm;
       try {
-        if (makeAdmin) {
-          await api.post('/admins', { id: user.id });
-        } else {
-          await api.delete(`/admins/${user.id}`);
-        }
+        await api.put(`/usuarios/${user.id}/role`, { role: newRole });
+
         toast({
           title: "Rol actualizado",
-          description: `El usuario "${user.displayName}" ahora ${makeAdmin ? 'es' : 'no es'} administrador.`,
+          description: `El usuario "${user.displayName}" ahora es ${newRole}.`,
         });
         window.location.reload();
       } catch (error) {
@@ -108,13 +106,7 @@ export default function TablaUsuarios({ data, admins, currentUserId }: TablaUsua
     }
   }
 
-  const tableData: UsuarioConEstadoAdmin[] = React.useMemo(() =>
-    data.map(user => ({
-      ...user,
-      isAdmin: admins.includes(user.id),
-    })), [data, admins]);
-
-  const columns: ColumnDef<UsuarioConEstadoAdmin>[] = [
+  const columns: ColumnDef<UsuarioExtendido>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -166,13 +158,17 @@ export default function TablaUsuarios({ data, admins, currentUserId }: TablaUsua
       cell: ({ row }) => <div>{row.getValue("email")}</div>,
     },
     {
-      accessorKey: "isAdmin",
+      accessorKey: "role",
       header: "Rol",
       cell: ({ row }) => {
-        const isAdmin = row.getValue("isAdmin");
+        const role = row.getValue("role") as string;
+        let variant: "default" | "secondary" | "outline" | "destructive" = "secondary";
+        if (role === 'superadmin') variant = "destructive";
+        if (role === 'client') variant = "default";
+
         return (
-            <Badge variant={isAdmin ? "default" : "secondary"}>
-                {isAdmin ? "Admin" : "Usuario"}
+            <Badge variant={variant} className="capitalize">
+                {role}
             </Badge>
         );
       },
@@ -182,7 +178,7 @@ export default function TablaUsuarios({ data, admins, currentUserId }: TablaUsua
       enableHiding: false,
       cell: ({ row }) => {
         const user = row.original;
-        const isAdmin = user.isAdmin;
+        const role = user.role;
         const isSelf = user.id === currentUserId;
 
         return (
@@ -199,16 +195,28 @@ export default function TablaUsuarios({ data, admins, currentUserId }: TablaUsua
                 Copiar ID de Usuario
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {isAdmin ? (
-                 <DropdownMenuItem onClick={() => handleRoleChangeClick(user, false)} disabled={isSelf}>
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    Quitar Admin
-                 </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onClick={() => handleRoleChangeClick(user, true)}>
-                    <Shield className="mr-2 h-4 w-4" />
-                    Hacer Admin
-                </DropdownMenuItem>
+
+              {!isSelf && (
+                  <>
+                    {role !== 'superadmin' && (
+                        <DropdownMenuItem onClick={() => handleRoleChangeClick(user, 'superadmin')}>
+                            <Shield className="mr-2 h-4 w-4" />
+                            Hacer Superadmin
+                        </DropdownMenuItem>
+                    )}
+                    {role !== 'client' && (
+                        <DropdownMenuItem onClick={() => handleRoleChangeClick(user, 'client')}>
+                            <UserCheck className="mr-2 h-4 w-4" />
+                            Hacer Cliente (Notario)
+                        </DropdownMenuItem>
+                    )}
+                    {role !== 'public' && (
+                        <DropdownMenuItem onClick={() => handleRoleChangeClick(user, 'public')}>
+                             <User className="mr-2 h-4 w-4" />
+                            Hacer Público
+                        </DropdownMenuItem>
+                    )}
+                  </>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -218,7 +226,7 @@ export default function TablaUsuarios({ data, admins, currentUserId }: TablaUsua
   ];
 
   const table = useReactTable({
-    data: tableData,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -239,7 +247,7 @@ export default function TablaUsuarios({ data, admins, currentUserId }: TablaUsua
   const columnNames: { [key: string]: string } = {
     displayName: "Nombre",
     email: "Correo Electrónico",
-    isAdmin: "Rol",
+    role: "Rol",
   };
 
   return (
@@ -359,17 +367,13 @@ export default function TablaUsuarios({ data, admins, currentUserId }: TablaUsua
           <AlertDialogHeader>
             <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
             <AlertDialogDescription>
-              {actionToConfirm?.makeAdmin
-                ? `Estás a punto de conceder permisos de administrador a ${actionToConfirm?.user.displayName}.`
-                : `Estás a punto de revocar los permisos de administrador de ${actionToConfirm?.user.displayName}.`
-              }
-               Esta acción se puede revertir.
+               Estás a punto de cambiar el rol de {actionToConfirm?.user.displayName} a <strong>{actionToConfirm?.newRole}</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={confirmRoleChange}>
-              Sí, continuar
+              Sí, cambiar rol
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
