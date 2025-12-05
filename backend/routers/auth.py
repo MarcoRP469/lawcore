@@ -10,7 +10,7 @@ import uuid
 # Configuración JWT
 SECRET_KEY = "tu_clave_secreta_super_segura" # CAMBIAR EN PRODUCCION
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 router = APIRouter()
 
@@ -48,7 +48,10 @@ def register(user: schemas.UsuarioCreate, db: Session = Depends(database.get_db)
     db.commit()
     db.refresh(new_user)
     
-    access_token = create_access_token(data={"sub": new_user.correo})
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": new_user.correo}, expires_delta=access_token_expires
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 class LoginRequest(schemas.BaseConfigModel):
@@ -82,5 +85,8 @@ def login(
         )
     
     # 3. Generar Token
-    access_token = create_access_token(data={"sub": user.correo})
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.correo}, expires_delta=access_token_expires
+    )
     return {"access_token": access_token, "token_type": "bearer"}
