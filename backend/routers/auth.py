@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm  # <--- Importación clave para el botón
 from sqlalchemy.orm import Session
 from typing import List
 from .. import models, schemas, database
@@ -52,11 +51,20 @@ def register(user: schemas.UsuarioCreate, db: Session = Depends(database.get_db)
     access_token = create_access_token(data={"sub": new_user.correo})
     return {"access_token": access_token, "token_type": "bearer"}
 
-# --- ESTA ES LA FUNCIÓN CORREGIDA PARA SWAGGER ---
+class LoginRequest(schemas.BaseConfigModel):
+    email: str
+    password: str
+
 @router.post("/login", response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
-    # 1. Swagger envía el correo en el campo 'username'
-    user = db.query(models.Usuario).filter(models.Usuario.correo == form_data.username).first()
+def login(
+    login_request: LoginRequest,
+    db: Session = Depends(database.get_db)
+):
+    email = login_request.email
+    password = login_request.password
+
+    # 1. Buscar usuario
+    user = db.query(models.Usuario).filter(models.Usuario.correo == email).first()
     
     # 2. Validaciones
     if not user:
@@ -66,7 +74,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    if not verify_password(form_data.password, user.hashed_password):
+    if not verify_password(password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas",

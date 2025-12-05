@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
-import { Home, Phone, Mail, MapPin, Star, ArrowLeft, Briefcase, FileText, CheckCircle2, MessageSquare, UserCircle, Video, Globe, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Home, Phone, Mail, MapPin, Star, ArrowLeft, Briefcase, FileText, CheckCircle2, MessageSquare, UserCircle, Video, Globe, Facebook, Instagram, Linkedin, User } from "lucide-react";
 import FormularioComentario from "@/components/formulario-comentario";
 import ListaComentarios from "@/components/lista-comentarios";
 import { useMemo } from "react";
@@ -141,13 +141,19 @@ export default function PaginaDetalleNotaria() {
             <div className="lg:col-span-1">
                  <Card className="sticky top-8 shadow-lg">
                     <CardHeader className="items-center text-center">
-                        <Image
-                            src={notary.avatarUrl}
-                            alt={`Avatar de ${notary.name}`}
-                            width={120}
-                            height={120}
-                            className="rounded-full border-4 border-primary"
-                        />
+                        {notary.avatarUrl && notary.avatarUrl.trim() !== "" ? (
+                            <Image
+                                src={notary.avatarUrl}
+                                alt={`Avatar de ${notary.name}`}
+                                width={120}
+                                height={120}
+                                className="rounded-full border-4 border-primary"
+                            />
+                        ) : (
+                            <div className="flex items-center justify-center w-[120px] h-[120px] rounded-full border-4 border-primary bg-muted">
+                                <User className="w-16 h-16 text-muted-foreground" />
+                            </div>
+                        )}
                         <CardTitle className="text-2xl pt-4 font-headline text-primary">{notary.name}</CardTitle>
                         <CalificacionEstrellas rating={averageRating} count={totalComments} />
                     </CardHeader>
