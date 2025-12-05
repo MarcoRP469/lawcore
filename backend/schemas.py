@@ -17,6 +17,7 @@ class UsuarioCreate(UsuarioBase):
 
 class Usuario(UsuarioBase):
     id: str
+    es_admin: bool = Field(default=False)
     createdAt: Optional[datetime] = Field(default=None, validation_alias="creado_en")
 
 # --- COMENTARIOS ---
