@@ -27,7 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { DISTRITOS, TODOS_LOS_SERVICIOS } from "@/core/datos";
-import type { Notaria } from "@/core/tipos";
+import type { Notaria, Usuario } from "@/core/tipos";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -46,6 +46,7 @@ import {
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import api from "@/services/api";
+import { useAuth } from "@/context/auth-provider";
 
 // --------------------------------------
 // Esquemas Zod
@@ -99,6 +100,7 @@ const esquemaNotaria = z.object({
   observations: z.string().optional(),
   detailedServices: z.array(esquemaServicioDetallado).optional(),
   commentSummary: z.string().optional(),
+  ownerId: z.string().optional(),
 });
 
 type ValoresFormularioNotaria = z.infer<typeof esquemaNotaria>;
@@ -156,10 +158,14 @@ const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function FormularioNotaria({ isOpen, onClose, notaria }: FormularioNotariaProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === 'superadmin' || user?.es_admin === true;
+
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [potentialOwners, setPotentialOwners] = useState<Usuario[]>([]);
 
   // serviceIndex -> imageIndex -> File
   const [detailedServiceFiles, setDetailedServiceFiles] = useState<Record<number, Record<number, File>>>({});
@@ -187,6 +193,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
       observations: "",
       detailedServices: [],
       commentSummary: "Aún no hay suficientes comentarios para un resumen.",
+      ownerId: "",
     },
   });
 
@@ -194,6 +201,15 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
     control: form.control,
     name: "detailedServices",
   });
+
+  useEffect(() => {
+      // Fetch owners list if superadmin
+      if (isSuperAdmin && isOpen) {
+          api.get('/usuarios').then(res => {
+              setPotentialOwners(res.data);
+          }).catch(console.error);
+      }
+  }, [isSuperAdmin, isOpen]);
 
   // Reset cuando se abre el modal o cambia la notaria
   useEffect(() => {
@@ -228,6 +244,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
             price: s.price === undefined ? "" : s.price,
           })) as any,
           commentSummary: notaria.commentSummary || "Aún no hay suficientes comentarios para un resumen.",
+          ownerId: (notaria as any).userId || "",
         }
       : {
           name: "",
@@ -248,6 +265,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
           observations: "",
           detailedServices: [],
           commentSummary: "Aún no hay suficientes comentarios para un resumen.",
+          ownerId: "",
         };
 
     form.reset(defaultValues as ValoresFormularioNotaria);
@@ -360,7 +378,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
         variant: "destructive",
         title: "Error al Guardar",
         description:
-          error?.message || "No se pudo guardar la notaría. Por favor, inténtalo de nuevo.",
+          error?.message || (error.response?.data?.detail) || "No se pudo guardar la notaría.",
       });
     } finally {
       setIsSubmitting(false);
@@ -397,6 +415,36 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
+                  {isSuperAdmin && (
+                      <FormField
+                        control={form.control}
+                        name="ownerId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Propietario (Usuario Cliente)</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Asignar propietario" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="">-- Sin asignar (Admin) --</SelectItem>
+                                {potentialOwners.map(u => (
+                                    <SelectItem key={u.id} value={u.id}>
+                                        {u.displayName || u.email} ({u.role || 'public'})
+                                    </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>Solo visible para Superadmin</FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                  )}
+
                   <FormField
                     control={form.control}
                     name="address"
