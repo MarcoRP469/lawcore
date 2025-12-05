@@ -58,20 +58,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     try {
-      // Opcional: Endpoint /auth/me para obtener datos del usuario con el token
-      // Por ahora simulamos decodificando o simplemente asumiendo sesión activa si el token no expira.
-      // Lo ideal es tener un endpoint 'get_current_user' en backend
-      // Vamos a asumir que si hay token, intentamos hacer una llamada para validar.
-      // Si falla (401), hacemos logout.
+      const response = await api.get("/auth/me");
+      const userData = response.data;
       
-      // Como no cree el endpoint /auth/me en el plan anterior, lo inferiremos o lo añadiremos después.
-      // Por ahora, decodificar el token es inseguro en cliente para datos, pero válido para estado básico.
-      // Mejor estrategia: Intentar leer algo protegido o simplemente persistir el usuario en localStorage al login.
-      
-      const storedUser = localStorage.getItem("user_data");
-      if (storedUser) {
-          setUser(JSON.parse(storedUser));
-      }
+      setUser(userData);
+      localStorage.setItem("user_data", JSON.stringify(userData));
     } catch (error) {
       console.error("Error verificando sesión", error);
       logout();
@@ -91,15 +82,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       localStorage.setItem("token", access_token);
       
-      // Simular datos de usuario o obtenerlos de otra llamada. 
-      // El login de Python devuelve token.
-      // Hack temporal: guardar datos básicos. En prod, llamar a /users/me
-      const userData: User = { 
-          id: email, // Temporal hasta tener endpoint /me
-          email, 
-          displayName: email.split('@')[0], 
-          photoURL: null 
-      };
+      // Obtener datos reales del usuario
+      const meResponse = await api.get("/auth/me");
+      const userData = meResponse.data;
       
       setUser(userData);
       localStorage.setItem("user_data", JSON.stringify(userData));
@@ -122,12 +107,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       localStorage.setItem("token", access_token);
       
-      const userData: User = { 
-          id: email, 
-          email, 
-          displayName: name, 
-          photoURL: null 
-      };
+      // Obtener datos reales del usuario
+      const meResponse = await api.get("/auth/me");
+      const userData = meResponse.data;
       
       setUser(userData);
       localStorage.setItem("user_data", JSON.stringify(userData));
