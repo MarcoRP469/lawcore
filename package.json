@@ -57,6 +57,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@tanstack/eslint-plugin-query": "^5.49.0",
     "@types/lodash": "^4.17.5",
     "@types/node": "^20",
