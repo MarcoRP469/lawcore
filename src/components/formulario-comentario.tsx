@@ -39,15 +39,9 @@ export default function FormularioComentario({ notaryId }: FormularioComentarioP
     
     try {
         await api.post("/comentarios", {
-            notary_id: parseInt(notaryId),
+            notaryId: parseInt(notaryId),
             rating: values.rating,
-            texto: values.text // Backend espera 'texto' (si usamos Pydantic alias) o mapear en frontend
-            // Revisando schemas.py: ComentarioBase tiene text: str = Field(alias="texto")
-            // Si enviamos JSON, FastAPI/Pydantic busca por nombre de campo 'text' o por alias 'texto' si populate_by_name=True.
-            // Enviemos 'text' para estar seguros o probamos. En schemas.py use populate_by_name=True asi que ambos funcionan.
-            // Pero esperate, en routers/comentarios.py:
-            // puntaje=comentario.rating, texto=comentario.text
-            // Asi que enviamos 'text' y 'rating' y 'notaryId' como definimos en el schema ComentarioCreate.
+            text: values.text
         });
 
         toast({
