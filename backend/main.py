@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
-from .routers import auth, notarias, comentarios, usuarios
+from .routers import auth, notarias, comentarios, usuarios, upload
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)
@@ -32,6 +33,13 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(notarias.router, prefix="/notarias", tags=["notarias"])
 app.include_router(comentarios.router, prefix="/comentarios", tags=["comentarios"])
 app.include_router(usuarios.router)
+app.include_router(upload.router, prefix="/upload", tags=["upload"])
+
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+os.makedirs(UPLOADS_DIR, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
 @app.get("/")
 def read_root():
