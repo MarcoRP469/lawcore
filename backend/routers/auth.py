@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm # Importante para el botón de Swagger
 from sqlalchemy.orm import Session
 from typing import List
 from .. import models, schemas, database
@@ -6,13 +7,20 @@ import bcrypt
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import uuid
+import os # <--- NUEVO: Para leer variables del sistema
+from dotenv import load_dotenv # <--- NUEVO: Para leer el archivo .env
 
-# Configuración JWT
-SECRET_KEY = "tu_clave_secreta_super_segura" # CAMBIAR EN PRODUCCION
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
+# Cargar variables del archivo .env
+load_dotenv()
 
 router = APIRouter()
+
+# --- CONFIGURACIÓN DE SEGURIDAD ---
+# Aquí ocurre la magia: Python busca la variable "SECRET_KEY" en tu archivo .env
+# Si no la encuentra (por error), usa la segunda cadena como respaldo temporal.
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback_secret_key_solo_para_dev") 
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 def get_password_hash(password):
     return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -43,8 +51,8 @@ def register(user: schemas.UsuarioCreate, db: Session = Depends(database.get_db)
         nombre=user.displayName,
         foto_url=user.photoURL,
         hashed_password=hashed_password,
-        role="public",  # Default role
-        es_admin=False  # Sync
+        role="public",
+        es_admin=False
     )
     db.add(new_user)
     db.commit()
@@ -56,17 +64,11 @@ def register(user: schemas.UsuarioCreate, db: Session = Depends(database.get_db)
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-class LoginRequest(schemas.BaseConfigModel):
-    email: str
-    password: str
-
 @router.post("/login", response_model=schemas.Token)
-def login(
-    login_request: LoginRequest,
-    db: Session = Depends(database.get_db)
-):
-    email = login_request.email
-    password = login_request.password
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+    # Swagger envía el email en el campo 'username'
+    email = form_data.username
+    password = form_data.password
 
     # 1. Buscar usuario
     user = db.query(models.Usuario).filter(models.Usuario.correo == email).first()
@@ -115,5 +117,4 @@ def get_current_user(token: str = Depends(database.oauth2_scheme), db: Session =
 
 @router.get("/me", response_model=schemas.Usuario)
 def read_users_me(current_user: models.Usuario = Depends(get_current_user)):
-    # Pydantic maps fields automatically. es_admin and role are included.
     return current_user

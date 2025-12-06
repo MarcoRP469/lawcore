@@ -89,3 +89,4 @@ Thumbs.db
 tmp/
 temp/
 backend.log
+backend\uploads/
