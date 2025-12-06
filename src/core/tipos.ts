@@ -58,6 +58,9 @@ export type Usuario = {
   photoURL?: string | null;
   createdAt?: Timestamp;
   es_admin?: boolean;
+  role?: 'superadmin' | 'client' | 'public';
+  bio?: string;
+  phoneNumber?: string;
 };
 
 export type Visita = {

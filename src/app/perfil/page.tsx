@@ -10,11 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Camera, User } from "lucide-react";
 import api from "@/services/api";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 
 export default function PaginaPerfil() {
   const { user, updateUserContext, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
@@ -41,11 +42,19 @@ export default function PaginaPerfil() {
     // Validación básica
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      toast.error("Formato no soportado. Usa JPG, PNG o WEBP.");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Formato no soportado. Usa JPG, PNG o WEBP."
+      });
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("La imagen no debe superar los 2MB.");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "La imagen no debe superar los 2MB."
+      });
       return;
     }
 
@@ -64,10 +73,17 @@ export default function PaginaPerfil() {
 
       const uploadedUrl = response.data.url;
       setFormData(prev => ({ ...prev, foto_url: uploadedUrl }));
-      toast.success("Foto subida temporalmente. Guarda los cambios para aplicar.");
+      toast({
+        title: "Éxito",
+        description: "Foto subida temporalmente. Guarda los cambios para aplicar."
+      });
     } catch (error) {
       console.error(error);
-      toast.error("Error al subir la imagen.");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Error al subir la imagen."
+      });
     } finally {
       setLoading(false);
     }
@@ -86,10 +102,17 @@ export default function PaginaPerfil() {
       });
 
       await updateUserContext(); // Refrescar contexto
-      toast.success("Perfil actualizado correctamente");
+      toast({
+        title: "Éxito",
+        description: "Perfil actualizado correctamente"
+      });
     } catch (error) {
       console.error(error);
-      toast.error("Error al actualizar perfil");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Error al actualizar perfil"
+      });
     } finally {
       setLoading(false);
     }
