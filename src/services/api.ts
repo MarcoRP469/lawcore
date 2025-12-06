@@ -41,4 +41,8 @@ api.interceptors.response.use(
   }
 );
 
+export const generateSummary = async (notariaId: number | string) => {
+  return api.post(`/notarias/${notariaId}/generate-summary`);
+};
+
 export default api;
