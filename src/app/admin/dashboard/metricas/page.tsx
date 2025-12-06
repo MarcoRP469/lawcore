@@ -54,10 +54,14 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import type { Notaria, MetricasDashboard } from "@/core/tipos";
+import type { Notaria, MetricasDashboard, ComentarioReciente, FuenteTrafico } from "@/core/tipos";
 import { Skeleton } from "@/components/ui/skeleton"
-import { useData } from "@/hooks/use-data";
+import { useData, useOneData } from "@/hooks/use-data";
 import { useUser } from "@/context/auth-provider";
+import { generateSummary } from "@/services/api";
+import { Button } from "@/components/ui/button";
+import { Sparkles, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 
 const chartConfig = {
@@ -77,6 +81,9 @@ export default function PaginaMetricasDashboard() {
   const isSuperAdmin = user?.role === 'superadmin' || user?.es_admin === true;
 
   const [notariaSeleccionada, setNotariaSeleccionada] = React.useState<string>("all");
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [generatedSummaries, setGeneratedSummaries] = React.useState<Record<string, string>>({});
+  const { toast } = useToast();
 
   // 1. Fetch Notarias for dropdown
   const endpointNotarias = isClient ? `/notarias?owner_id=${user?.id}` : "/notarias";
@@ -88,6 +95,35 @@ export default function PaginaMetricasDashboard() {
           setNotariaSeleccionada(notaries[0].id.toString());
       }
   }, [isClient, notaries]);
+
+  const handleGenerateSummary = async () => {
+    if (notariaSeleccionada === "all") return;
+
+    setIsGenerating(true);
+    try {
+      const response = await generateSummary(notariaSeleccionada);
+      const newSummary = response.data.summary;
+
+      setGeneratedSummaries(prev => ({
+        ...prev,
+        [notariaSeleccionada]: newSummary
+      }));
+
+      toast({
+        title: "Resumen Generado",
+        description: "El análisis de comentarios se ha completado exitosamente.",
+      });
+    } catch (error) {
+      console.error("Error generating summary:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo generar el resumen.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   // 3. Fetch Metrics
   // Construct URL with optional owner_id filter
@@ -101,7 +137,7 @@ export default function PaginaMetricasDashboard() {
   // - If Superadmin: fetch all. (Refining by specific notary in charts isn't implemented in backend yet, just by Owner).
 
   const endpointMetrics = isClient ? `/metricas?owner_id=${user?.id}` : "/metricas";
-  const { data: metricsData, isLoading: loadingMetrics } = useData<MetricasDashboard>(endpointMetrics);
+  const { data: metricsData, isLoading: loadingMetrics } = useOneData<MetricasDashboard>(endpointMetrics);
 
   const resumenSeleccionado = React.useMemo(() => {
     if (cargandoNotarias) return null;
@@ -111,9 +147,14 @@ export default function PaginaMetricasDashboard() {
         return "Selecciona una notaría para ver el resumen de sus comentarios.";
     }
 
+    // Check if we have a locally generated summary first
+    if (generatedSummaries[notariaSeleccionada]) {
+        return generatedSummaries[notariaSeleccionada];
+    }
+
     const selectedNotary = notaries?.find(n => n.id.toString() === notariaSeleccionada);
-    return selectedNotary?.commentSummary || "No hay resumen disponible para esta notaría.";
-  }, [notariaSeleccionada, notaries, cargandoNotarias, isClient]);
+    return selectedNotary?.commentSummary || null;
+  }, [notariaSeleccionada, notaries, cargandoNotarias, isClient, generatedSummaries]);
 
   if (loadingMetrics || !metricsData) {
       return <div className="p-8 space-y-4">
@@ -298,8 +339,36 @@ export default function PaginaMetricasDashboard() {
                 </div>
             </CardHeader>
             <CardContent className="space-y-2">
-                <h4 className="font-semibold">Resumen Generado por IA:</h4>
-                <p className="text-sm text-muted-foreground italic">&ldquo;{resumenSeleccionado}&rdquo;</p>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold">Resumen Generado por IA:</h4>
+                  {!resumenSeleccionado && notariaSeleccionada !== "all" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGenerateSummary}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generando...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Generar Resumen
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+                {resumenSeleccionado ? (
+                   <p className="text-sm text-muted-foreground italic">&ldquo;{resumenSeleccionado}&rdquo;</p>
+                ) : (
+                   <p className="text-sm text-muted-foreground italic">
+                     {notariaSeleccionada === "all" ? "Selecciona una notaría." : "No hay resumen disponible. Haz clic en Generar."}
+                   </p>
+                )}
             </CardContent>
           </Card>
 
@@ -322,7 +391,7 @@ export default function PaginaMetricasDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {comentariosRecientes.length > 0 ? comentariosRecientes.map((comment) => (
+                  {comentariosRecientes.length > 0 ? comentariosRecientes.map((comment: ComentarioReciente) => (
                     <TableRow key={comment.id}>
                       <TableCell>
                         <div className="font-medium">{comment.userName}</div>
@@ -367,7 +436,7 @@ export default function PaginaMetricasDashboard() {
                     outerRadius={80}
                     fill="var(--color-notaries)"
                   >
-                    {fuentesTrafico.map((entry, index) => (
+                    {fuentesTrafico.map((entry: FuenteTrafico, index: number) => (
                       <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${index + 1}))`} />
                     ))}
                   </Pie>

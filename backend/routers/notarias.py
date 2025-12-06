@@ -5,6 +5,7 @@ from typing import List, Optional
 from .. import models, schemas, database
 from .auth import get_current_user
 import uuid
+from ..ai_utils import generate_summary
 
 router = APIRouter()
 
@@ -212,3 +213,32 @@ def delete_notaria(
     db.delete(db_notaria)
     db.commit()
     return {"message": "Notaria eliminada exitosamente"}
+
+@router.post("/{notaria_id}/generate-summary", response_model=dict)
+def generate_notaria_summary(
+    notaria_id: int,
+    db: Session = Depends(database.get_db),
+    current_user: models.Usuario = Depends(get_current_user)
+):
+    db_notaria = db.query(models.Notaria).filter(models.Notaria.id == notaria_id).first()
+    if not db_notaria:
+        raise HTTPException(status_code=404, detail="Notaria not found")
+
+    # Permission check
+    if current_user.es_admin:
+        pass # Allow access if marked as admin (legacy or superadmin override)
+    elif current_user.role == 'client':
+        if db_notaria.usuario_id != current_user.id:
+            raise HTTPException(status_code=403, detail="No tienes permisos para esta notaria.")
+    elif current_user.role == 'public':
+        raise HTTPException(status_code=403, detail="No tienes permisos.")
+
+    # Fetch comments
+    comments = db.query(models.Comentario).filter(models.Comentario.notaria_id == notaria_id).all()
+
+    summary = generate_summary(comments)
+
+    db_notaria.resumen_coment = summary
+    db.commit()
+
+    return {"summary": summary}
