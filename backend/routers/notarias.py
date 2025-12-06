@@ -223,9 +223,11 @@ def generate_notaria_summary(
     db_notaria = db.query(models.Notaria).filter(models.Notaria.id == notaria_id).first()
     if not db_notaria:
         raise HTTPException(status_code=404, detail="Notaria not found")
-
+    
     # Permission check
-    if current_user.role == 'client':
+    if current_user.es_admin:
+        pass # Allow access if marked as admin (legacy or superadmin override)
+    elif current_user.role == 'client':
         if db_notaria.usuario_id != current_user.id:
             raise HTTPException(status_code=403, detail="No tienes permisos para esta notaria.")
     elif current_user.role == 'public':
@@ -233,10 +235,10 @@ def generate_notaria_summary(
 
     # Fetch comments
     comments = db.query(models.Comentario).filter(models.Comentario.notaria_id == notaria_id).all()
-
+    
     summary = generate_summary(comments)
-
+    
     db_notaria.resumen_coment = summary
     db.commit()
-
+    
     return {"summary": summary}
