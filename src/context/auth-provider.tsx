@@ -10,8 +10,10 @@ export type User = {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
-  es_admin?: boolean;
-  // Agrega otros campos si es necesario
+  bio?: string | null;
+  phoneNumber?: string | null;
+  role: 'superadmin' | 'client' | 'public';
+  es_admin?: boolean; // Legacy/Sync
 };
 
 interface AuthContextType {
@@ -20,6 +22,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUserContext: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -28,6 +31,7 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   register: async () => {},
   logout: async () => {},
+  updateUserContext: async () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -82,12 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       localStorage.setItem("token", access_token);
       
-      // Obtener datos reales del usuario
-      const meResponse = await api.get("/auth/me");
-      const userData = meResponse.data;
-      
-      setUser(userData);
-      localStorage.setItem("user_data", JSON.stringify(userData));
+      await checkUser();
       
       router.refresh();
     } catch (error) {
@@ -101,18 +100,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await api.post("/auth/register", { 
           email, 
           password, 
-          nombre: name // Mapeo al esquema backend 
+          nombre: name
       });
       const { access_token } = response.data;
       
       localStorage.setItem("token", access_token);
       
-      // Obtener datos reales del usuario
-      const meResponse = await api.get("/auth/me");
-      const userData = meResponse.data;
-      
-      setUser(userData);
-      localStorage.setItem("user_data", JSON.stringify(userData));
+      await checkUser();
       
       router.refresh();
     } catch (error) {
@@ -121,8 +115,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const updateUserContext = async () => {
+    await checkUser();
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUserContext }}>
       {children}
     </AuthContext.Provider>
   );

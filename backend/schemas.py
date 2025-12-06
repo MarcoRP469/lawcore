@@ -11,14 +11,24 @@ class UsuarioBase(BaseConfigModel):
     email: str = Field(validation_alias="correo")
     displayName: Optional[str] = Field(default=None, validation_alias="nombre")
     photoURL: Optional[str] = Field(default=None, validation_alias="foto_url")
+    bio: Optional[str] = None
+    phoneNumber: Optional[str] = Field(default=None, validation_alias="telefono")
 
 class UsuarioCreate(UsuarioBase):
     password: str
 
+class UsuarioUpdate(BaseConfigModel):
+    displayName: Optional[str] = Field(default=None, alias="nombre")
+    bio: Optional[str] = None
+    phoneNumber: Optional[str] = Field(default=None, alias="telefono")
+    photoURL: Optional[str] = Field(default=None, alias="foto_url")
+
 class Usuario(UsuarioBase):
     id: str
+    role: str = Field(default="public")
     es_admin: bool = Field(default=False)
     createdAt: Optional[datetime] = Field(default=None, validation_alias="creado_en")
+    updatedAt: Optional[datetime] = Field(default=None, validation_alias="updated_at")
 
 # --- COMENTARIOS ---
 class ComentarioBase(BaseConfigModel):
@@ -34,7 +44,7 @@ class Comentario(ComentarioBase):
     userId: str = Field(validation_alias="usuario_id")
     createdAt: Optional[datetime] = Field(default=None, validation_alias="creado_en")
     
-    # Campos enriquecidos - estos no tienen alias en DB pues se computan o inyectan
+    # Campos enriquecidos
     userDisplayName: Optional[str] = None
     userPhotoURL: Optional[str] = None
 
@@ -72,6 +82,8 @@ class NotariaCreate(NotariaBase):
     linkedinUrl: Optional[str] = Field(default=None, alias="linkedin_url")
     observations: Optional[str] = Field(default=None, alias="observaciones")
     detailedServices: Optional[List[ServicioDetallado]] = Field(default=None, alias="servicios_detallados")
+    # Para superadmin que quiera asignar propietario
+    ownerId: Optional[str] = Field(default=None, alias="usuario_id")
 
 class Notaria(NotariaBase):
     id: int
@@ -85,6 +97,9 @@ class Notaria(NotariaBase):
     commentSummary: Optional[str] = Field(default=None, validation_alias="resumen_coment")
     detailedServices: Optional[List[ServicioDetallado]] = Field(default=None, validation_alias="servicios_detallados")
     createdAt: Optional[datetime] = Field(default=None, validation_alias="creado_en")
+
+    # Nuevo campo
+    userId: Optional[str] = Field(default=None, validation_alias="usuario_id")
 
 # --- AUTH ---
 class Token(BaseConfigModel):

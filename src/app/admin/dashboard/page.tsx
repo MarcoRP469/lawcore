@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Building, Users, BarChart3 } from "lucide-react";
+import { useUser } from "@/context/auth-provider";
 
 const apps = [
   {
@@ -11,22 +12,37 @@ const apps = [
     description: "Crear, editar y eliminar notarías. Gestionar servicios y disponibilidad.",
     href: "/admin/notarias",
     icon: <Building className="h-8 w-8 text-primary" />,
+    roles: ["superadmin", "client"],
   },
   {
     title: "Gestión de Usuarios",
     description: "Ver, editar y asignar roles a los usuarios de la plataforma.",
     href: "/admin/usuarios",
     icon: <Users className="h-8 w-8 text-primary" />,
+    roles: ["superadmin"],
   },
   {
     title: "Métricas y Analíticas",
     description: "Visualizar estadísticas de visitas, usuarios y comentarios en la plataforma.",
     href: "/admin/dashboard/metricas",
     icon: <BarChart3 className="h-8 w-8 text-primary" />,
+    roles: ["superadmin", "client"],
   },
 ];
 
 export default function PaginaDashboard() {
+  const user = useUser();
+  // Determine if superadmin. Legacy support for es_admin boolean
+  const isSuperAdmin = user?.role === 'superadmin' || user?.es_admin === true;
+  const isClient = user?.role === 'client';
+
+  // Filter apps based on role
+  const visibleApps = apps.filter(app => {
+      if (isSuperAdmin) return true;
+      if (isClient && app.roles.includes("client")) return true;
+      return false;
+  });
+
   return (
     <div className="space-y-8">
        <div>
@@ -34,7 +50,7 @@ export default function PaginaDashboard() {
         <p className="text-muted-foreground mt-2">Selecciona una herramienta para empezar a gestionar tu plataforma.</p>
        </div>
        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {apps.map((app) => (
+        {visibleApps.map((app) => (
             <Link href={app.href} key={app.title} className="group">
                 <Card className="h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-primary/50">
                     <CardHeader>
