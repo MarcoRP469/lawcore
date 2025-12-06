@@ -58,6 +58,9 @@ export type Usuario = {
   photoURL?: string | null;
   createdAt?: Timestamp;
   es_admin?: boolean;
+  role?: 'superadmin' | 'client' | 'public';
+  bio?: string;
+  phoneNumber?: string;
 };
 
 export type Visita = {
@@ -84,3 +87,17 @@ export type Metrica = {
   activosAhora: number;
   cambioActivosAhora: number;
 };
+
+export type FuenteTrafico = {
+    source: string;
+    visitors: number;
+    fill: string;
+}
+
+export type MetricasDashboard = {
+    kpi: Metrica;
+    visitas: Visita[];
+    topNotarias: { name: string; views: number }[];
+    comentariosRecientes: ComentarioReciente[];
+    fuentesTrafico: FuenteTrafico[];
+}

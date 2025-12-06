@@ -10,20 +10,22 @@ class Usuario(Base):
     nombre = Column(String(255), nullable=True)
     correo = Column(String(255), unique=True, index=True, nullable=False)
     foto_url = Column(Text, nullable=True)
+
+    # Nuevos campos
+    role = Column(String(20), default="public", nullable=False) # superadmin, client, public
+    bio = Column(Text, nullable=True)
+    telefono = Column(String(20), nullable=True)
+    updated_by = Column(String(128), nullable=True)
+    updated_at = Column(TIMESTAMP, nullable=True, onupdate=func.now())
+
+    # Mantener es_admin por compatibilidad legacy inmediata, pero el source of truth será role
     es_admin = Column(Boolean, default=False, nullable=False)
-    creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     
-    # Campo extra para auth (no está en el script SQL original pero necesario para login simple)
-    # En un escenario real, si el SQL es estricto, esto debería manejarse aparte o alterar la tabla.
-    # Asumiré que puedo agregarlo o que la autenticación se maneja externamente. 
-    # Para que funcione este ejemplo, lo añadiré al modelo SQLAlchemy pero ten en cuenta que 
-    # si la tabla MySQL ya existe sin esta columna, fallará. 
-    # OPCIÓN: El script SQL no tiene password. Asumo que el ID viene de un proveedor externo o falta la columna.
-    # Agregaré 'hashed_password' mapeado a una columna hipotética o lo omitiré si usamos Auth externo.
-    # Dado que el usuario pidió Login, agregaré la columna al modelo.
+    creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     hashed_password = Column(String(255), nullable=True) 
 
     comentarios = relationship("Comentario", back_populates="usuario")
+    notarias = relationship("Notaria", back_populates="usuario")
 
 class Notaria(Base):
     __tablename__ = "notarias"
@@ -47,10 +49,24 @@ class Notaria(Base):
     resumen_coment = Column(Text, nullable=True)
     creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
 
+    # Nuevo campo de propietario
+    usuario_id = Column(String(128), ForeignKey("usuarios.id", ondelete="SET NULL", onupdate="CASCADE"), nullable=True)
+
     # Relaciones
+    usuario = relationship("Usuario", back_populates="notarias")
     servicios_generales = relationship("NotariaServicioGeneral", back_populates="notaria", cascade="all, delete-orphan")
     servicios_detallados = relationship("ServicioDetallado", back_populates="notaria", cascade="all, delete-orphan")
     comentarios = relationship("Comentario", back_populates="notaria", cascade="all, delete-orphan")
+    visitas = relationship("NotariaVisita", back_populates="notaria", cascade="all, delete-orphan")
+
+class NotariaVisita(Base):
+    __tablename__ = "notaria_visitas"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    notaria_id = Column(Integer, ForeignKey("notarias.id", ondelete="CASCADE"), nullable=False)
+    creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+
+    notaria = relationship("Notaria", back_populates="visitas")
 
 class NotariaServicioGeneral(Base):
     __tablename__ = "notaria_servicios_generales"

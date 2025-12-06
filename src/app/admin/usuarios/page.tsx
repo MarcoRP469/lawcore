@@ -12,12 +12,8 @@ export default function PaginaUsuarios() {
   const currentUser = useUser();
 
   const { data: users, isLoading: usersLoading } = useData<Usuario>("/usuarios");
-  // Simular admins obteniendo usuarios y filtrando? O asumir que el backend ya maneja permisos.
-  // Por ahora dejamos admins vacío o lo implementamos en el backend como /usuarios/admins
-  const { data: admins, isLoading: adminsLoading } = useData<{id: string}>("/admins");
 
-  const adminUIDs = useMemo(() => (admins || []).map(admin => admin.id), [admins]);
-  const loading = usersLoading || adminsLoading;
+  const loading = usersLoading;
 
   if (loading) {
     return (
@@ -30,11 +26,15 @@ export default function PaginaUsuarios() {
     );
   }
 
+  const safeUsers = (users || []).map(u => ({
+      ...u,
+      role: u.role || 'public' // Fallback
+  }));
+
   return (
     <div>
       <TablaUsuarios 
-        data={users || []} 
-        admins={adminUIDs}
+        data={safeUsers}
         currentUserId={currentUser?.id} 
       />
     </div>
