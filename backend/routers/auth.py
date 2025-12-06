@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm # Importante para el botón de Swagger
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from typing import List
 from .. import models, schemas, database
@@ -7,17 +7,11 @@ import bcrypt
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import uuid
-import os # <--- NUEVO: Para leer variables del sistema
-from dotenv import load_dotenv # <--- NUEVO: Para leer el archivo .env
+import os
+from dotenv import load_dotenv
 
-# Cargar variables del archivo .env
 load_dotenv()
-
 router = APIRouter()
-
-# --- CONFIGURACIÓN DE SEGURIDAD ---
-# Aquí ocurre la magia: Python busca la variable "SECRET_KEY" en tu archivo .env
-# Si no la encuentra (por error), usa la segunda cadena como respaldo temporal.
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback_secret_key_solo_para_dev") 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
