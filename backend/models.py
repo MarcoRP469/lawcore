@@ -57,6 +57,16 @@ class Notaria(Base):
     servicios_generales = relationship("NotariaServicioGeneral", back_populates="notaria", cascade="all, delete-orphan")
     servicios_detallados = relationship("ServicioDetallado", back_populates="notaria", cascade="all, delete-orphan")
     comentarios = relationship("Comentario", back_populates="notaria", cascade="all, delete-orphan")
+    visitas = relationship("NotariaVisita", back_populates="notaria", cascade="all, delete-orphan")
+
+class NotariaVisita(Base):
+    __tablename__ = "notaria_visitas"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    notaria_id = Column(Integer, ForeignKey("notarias.id", ondelete="CASCADE"), nullable=False)
+    creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+
+    notaria = relationship("Notaria", back_populates="visitas")
 
 class NotariaServicioGeneral(Base):
     __tablename__ = "notaria_servicios_generales"

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
-from .routers import auth, notarias, comentarios, usuarios, upload
+from .routers import auth, notarias, comentarios, usuarios, upload, metricas
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Depends, HTTPException, status
 # Crear tablas
@@ -35,6 +35,7 @@ app.include_router(notarias.router, prefix="/notarias", tags=["notarias"])
 app.include_router(comentarios.router, prefix="/comentarios", tags=["comentarios"])
 app.include_router(usuarios.router)
 app.include_router(upload.router, prefix="/upload", tags=["upload"])
+app.include_router(metricas.router, prefix="/metricas", tags=["metricas"])
 
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

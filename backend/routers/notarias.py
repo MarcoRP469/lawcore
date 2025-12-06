@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional
 from .. import models, schemas, database
 from .auth import get_current_user
@@ -62,6 +63,12 @@ def read_notaria(notaria_id: int, db: Session = Depends(database.get_db)):
     if not notaria:
         raise HTTPException(status_code=404, detail="Notaria not found")
     
+    # Registrar visita
+    # Omitimos user-agent/IP por simplicidad, solo contamos que se vio
+    nueva_visita = models.NotariaVisita(notaria_id=notaria.id)
+    db.add(nueva_visita)
+    db.commit() # Commit inmediato para registrar la visita aunque luego falle algo (poco probable)
+
     notaria.services = [s.servicio for s in notaria.servicios_generales]
     return notaria
 
