@@ -57,6 +57,7 @@ import {
 import type { Visita, Metrica, ComentarioReciente, Notaria } from "@/core/tipos";
 import { Skeleton } from "@/components/ui/skeleton"
 import { useData } from "@/hooks/use-data";
+import { useUser } from "@/context/auth-provider";
 
 
 const chartConfig = {
@@ -70,7 +71,7 @@ const chartConfig = {
   },
 } satisfies React.ComponentProps<typeof ChartContainer>["config"]
 
-// --- Placeholder Data ---
+// --- Placeholder Data (Still mocked for now as per instructions to only restrict viewing scope) ---
 const datosKPI: Metrica = {
   totalVisitas: 12530,
   cambioVisitas: 15.2,
@@ -115,19 +116,34 @@ const fuentesTrafico = [
 // --- End Placeholder Data ---
 
 export default function PaginaMetricasDashboard() {
+  const user = useUser();
+  const isClient = user?.role === 'client';
+  const isSuperAdmin = user?.role === 'superadmin' || user?.es_admin === true;
+
   const [notariaSeleccionada, setNotariaSeleccionada] = React.useState<string>("all");
-  const { data: notaries, isLoading: cargandoNotarias } = useData<Notaria>("/notarias");
+
+  // If Client, filter by owner_id
+  const endpoint = isClient ? `/notarias?owner_id=${user?.id}` : "/notarias";
+  const { data: notaries, isLoading: cargandoNotarias } = useData<Notaria>(endpoint);
+
+  // Effect to auto-select notary if client only has one (or to enforce selection)
+  React.useEffect(() => {
+      if (isClient && notaries && notaries.length > 0) {
+          setNotariaSeleccionada(notaries[0].id.toString());
+      }
+  }, [isClient, notaries]);
 
   const resumenSeleccionado = React.useMemo(() => {
     if (cargandoNotarias) return null;
 
     if (notariaSeleccionada === "all") {
+        if (isClient) return "Cargando tu notaría...";
         return "Selecciona una notaría para ver el resumen de sus comentarios.";
     }
 
     const selectedNotary = notaries?.find(n => n.id.toString() === notariaSeleccionada);
     return selectedNotary?.commentSummary || "No hay resumen disponible para esta notaría.";
-  }, [notariaSeleccionada, notaries, cargandoNotarias]);
+  }, [notariaSeleccionada, notaries, cargandoNotarias, isClient]);
 
 
   return (
@@ -271,12 +287,16 @@ export default function PaginaMetricasDashboard() {
                     {cargandoNotarias ? (
                         <Skeleton className="h-10 w-full sm:w-[280px]" />
                     ) : (
-                        <Select value={notariaSeleccionada} onValueChange={setNotariaSeleccionada}>
+                        <Select
+                            value={notariaSeleccionada}
+                            onValueChange={setNotariaSeleccionada}
+                            disabled={isClient} // Disable selection for clients as they only have one
+                        >
                             <SelectTrigger className="w-full sm:w-[280px]">
                                 <SelectValue placeholder="Seleccionar notaría..." />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Seleccionar Notaría</SelectItem>
+                                {isSuperAdmin && <SelectItem value="all">Seleccionar Notaría</SelectItem>}
                                 {notaries?.map(n => <SelectItem key={n.id} value={n.id.toString()}>{n.name}</SelectItem>)}
                             </SelectContent>
                         </Select>
