@@ -98,12 +98,12 @@ export default function PaginaMetricasDashboard() {
 
   const handleGenerateSummary = async () => {
     if (notariaSeleccionada === "all") return;
-
+    
     setIsGenerating(true);
     try {
       const response = await generateSummary(notariaSeleccionada);
       const newSummary = response.data.summary;
-
+      
       setGeneratedSummaries(prev => ({
         ...prev,
         [notariaSeleccionada]: newSummary
@@ -342,9 +342,9 @@ export default function PaginaMetricasDashboard() {
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold">Resumen Generado por IA:</h4>
                   {!resumenSeleccionado && notariaSeleccionada !== "all" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
                       onClick={handleGenerateSummary}
                       disabled={isGenerating}
                     >
