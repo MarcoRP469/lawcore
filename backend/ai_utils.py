@@ -1,17 +1,33 @@
-from typing import List
+from typing import List, Any
 from collections import Counter
 import re
 
-def generate_summary(comments: List[dict]) -> str:
+def generate_summary(comments: List[Any]) -> str:
     """
     Generates a simple summary based on a list of comments.
-    Each comment is expected to be a dict (or object) with 'text' and 'rating'.
+    Each comment is expected to be an object with 'text'/'texto' and 'rating'/'puntaje'.
     """
     if not comments:
         return "No hay comentarios suficientes para generar un resumen."
 
+    # Helper function to access attributes safely
+    def get_rating(c):
+        if hasattr(c, "rating"):
+            return c.rating
+        if hasattr(c, "puntaje"):
+            return c.puntaje
+        return 0
+
+    def get_text(c):
+        if hasattr(c, "text"):
+            return c.text
+        if hasattr(c, "texto"):
+            return c.texto
+        return ""
+
     total_comments = len(comments)
-    avg_rating = sum(c.rating for c in comments) / total_comments
+    # Avoid division by zero if comments is not empty (checked above)
+    avg_rating = sum(get_rating(c) for c in comments) / total_comments
     
     # Simple sentiment based on rating
     if avg_rating >= 4.5:
@@ -24,7 +40,7 @@ def generate_summary(comments: List[dict]) -> str:
         sentiment = "negativa"
 
     # Extract keywords (very basic)
-    all_text = " ".join([c.text for c in comments]).lower()
+    all_text = " ".join([get_text(c) for c in comments]).lower()
     # Basic stop words in Spanish
     stop_words = set([
         "de", "la", "que", "el", "en", "y", "a", "los", "se", "del", "las", "un", "por", "con", "no", "una", "su", "para", "es", "al", "lo", "como", "mas", "pero", "sus", "le", "ya", "o", "fue", "este", "muy", "son", "está", "ha", "me", "mi", "nos"
