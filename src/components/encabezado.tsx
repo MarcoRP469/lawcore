@@ -4,6 +4,7 @@
 import * as React from "react";
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Image from 'next/image';
 import DialogoAutenticacion from "./auth-dialog";
 import {
   DropdownMenu,
@@ -17,67 +18,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LayoutDashboard } from "lucide-react";
 import { useUser, useAuth } from "@/context/auth-provider";
 // import { useAdministrador } from "@/hooks/use-administrador"; // TODO
-
-const LawCoreLogo = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 200 200"
-    className={className}
-    fill="currentColor"
-    stroke="currentColor"
-  >
-    <circle cx="100" cy="100" r="95" strokeWidth="2" fill="none" className="stroke-primary" />
-    <circle cx="100" cy="100" r="88" strokeWidth="1.5" fill="none" className="stroke-primary" />
-    <circle cx="100" cy="100" r="68" strokeWidth="1.5" fill="none" className="stroke-primary" />
-    <path d="M 32,100 H 168" strokeWidth="1.5" fill="none" className="stroke-primary" />
-    <path d="M 100,32 V 80" strokeWidth="1.5" fill="none" className="stroke-primary" />
-    <text x="100" y="45" textAnchor="middle" fontSize="14" fontWeight="bold" letterSpacing="2" className="fill-primary">
-        LawCore
-    </text>
-    <text x="100" y="168" textAnchor="middle" fontSize="10" fontWeight="bold" letterSpacing="1" className="fill-primary">
-        NOTARIAS LEGALES
-    </text>
-    <text x="60" y="105" fontSize="16" fontWeight="bold" textAnchor="middle" className="fill-primary">M</text>
-    <text x="140" y="105" fontSize="16" fontWeight="bold" textAnchor="middle" className="fill-primary">S</text>
-    <g transform="translate(100, 100) scale(0.6)">
-        <path d="M -20,65 C -40,40 -40,10 -20,-15 C -35,10 -35,40 -20,65" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,55 L -35,45" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,40 L -38,28" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,25 L -35,15" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,10 L -32,3" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,-5 L -30,-12" strokeWidth="3" fill="none" className="stroke-primary"/>
-    </g>
-     <g transform="translate(100, 100) scale(0.6) scale(-1, 1)">
-        <path d="M -20,65 C -40,40 -40,10 -20,-15 C -35,10 -35,40 -20,65" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,55 L -35,45" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,40 L -38,28" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,25 L -35,15" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,10 L -32,3" strokeWidth="3" fill="none" className="stroke-primary"/>
-        <path d="M -22,-5 L -30,-12" strokeWidth="3" fill="none" className="stroke-primary"/>
-    </g>
-    <g transform="translate(100, 75)" className="stroke-primary fill-primary">
-        <path d="M -20,48 A 20,8 0 0,0 20,48 H -20 Z" strokeWidth="1.5" />
-        <path d="M -15,40 A 15,6 0 0,0 15,40 H -15 Z" strokeWidth="1.5"/>
-        <path d="M 0,40 V 10" strokeWidth="1.5" />
-        <circle cx="0" cy="0" r="8" />
-        <path d="M -3,10 L -18,18 L -18,28 L -3,18 Z" /> 
-        <path d="M 3,10 L 18,18 L 18,28 L 3,18 Z" />
-        <g transform="translate(0, 15)">
-            <path d="M -40,0 H 40" strokeWidth="2" fill="none" />
-            <g transform="translate(-30, 0)">
-                <path d="M 0,0 V 5" strokeWidth="1.5" fill="none" />
-                <path d="M -8,5 H 8" strokeWidth="1.5" fill="none" />
-                <path d="M -8,5 C -8,15 8,15 8,5" strokeWidth="1.5" fill="none" />
-            </g>
-            <g transform="translate(30, 0)">
-                <path d="M 0,0 V 5" strokeWidth="1.5" fill="none" />
-                <path d="M -8,5 H 8" strokeWidth="1.5" fill="none" />
-                <path d="M -8,5 C -8,15 8,15 8,5" strokeWidth="1.5" fill="none" />
-            </g>
-        </g>
-    </g>
-  </svg>
-);
 
 export default function Encabezado() {
   const user = useUser();
@@ -105,7 +45,14 @@ export default function Encabezado() {
           <div className="flex h-20 items-center justify-between">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2">
-                <LawCoreLogo className="h-16 w-16 text-primary" />
+                <Image
+                  src="/logoLawCore.svg"
+                  alt="LawCore Logo"
+                  width={80}
+                  height={80}
+                  className="h-20 w-20"
+                  priority
+                />
                 <span className="text-xl font-bold tracking-tight">
                   LawCore
                 </span>
