@@ -48,9 +48,9 @@ export default function Encabezado() {
                 <Image
                   src="/logoLawCore.svg"
                   alt="LawCore Logo"
-                  width={64}
-                  height={64}
-                  className="h-16 w-16"
+                  width={80}
+                  height={80}
+                  className="h-20 w-20"
                   priority
                 />
                 <span className="text-xl font-bold tracking-tight">

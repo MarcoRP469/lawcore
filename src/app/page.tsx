@@ -3,6 +3,7 @@
 
 import * as React from "react";
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Encabezado from "@/components/encabezado";
 import PieDePagina from "@/components/pie-de-pagina";
 import FiltrosNotaria from "@/components/filtros-notaria";
@@ -84,7 +85,16 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background relative">
+       <div className="fixed inset-0 flex items-center justify-center pointer-events-none -z-10 opacity-5">
+        <Image
+          src="/logoLawCore.svg"
+          alt="LawCore Watermark"
+          width={500}
+          height={500}
+          priority
+        />
+      </div>
       <Encabezado />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         <div className="text-center mb-12">
