@@ -81,7 +81,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await api.post("/auth/login", { email, password });
+      // Backend expects OAuth2PasswordRequestForm (form-data)
+      const params = new URLSearchParams();
+      params.append('username', email);
+      params.append('password', password);
+
+      const response = await api.post("/auth/login", params);
       const { access_token } = response.data;
       
       localStorage.setItem("token", access_token);

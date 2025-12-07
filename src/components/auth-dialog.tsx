@@ -73,7 +73,15 @@ export default function DialogoAutenticacion({ open, onOpenChange }: DialogoAute
       // Intentar extraer el mensaje de error de la API
       let errorMessage = "Ha ocurrido un error. Por favor, inténtalo de nuevo.";
       if (error?.response?.data?.detail) {
-          errorMessage = error.response.data.detail;
+          const detail = error.response.data.detail;
+          if (typeof detail === 'string') {
+             errorMessage = detail;
+          } else if (Array.isArray(detail)) {
+             // Handle array of errors (common in Pydantic 422)
+             errorMessage = detail.map((e: any) => e.msg).join(', ');
+          } else if (typeof detail === 'object') {
+             errorMessage = JSON.stringify(detail);
+          }
       }
 
       toast({
