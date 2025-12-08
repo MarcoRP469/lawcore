@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -86,7 +85,8 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background relative">
-       <div className="fixed inset-0 flex items-center justify-center pointer-events-none -z-10 opacity-5">
+      {/* Watermark: moved in front of the page background (z-0) and increased opacity */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0 opacity-10">
         <Image
           src="/logoLawCore.svg"
           alt="LawCore Watermark"
@@ -95,8 +95,14 @@ export default function Home() {
           priority
         />
       </div>
-      <Encabezado />
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+
+      {/* Encabezado must stay above watermark */}
+      <div className="relative z-10">
+        <Encabezado />
+      </div>
+
+      {/* Main content — added relative z-10 so it sits above watermark */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow relative z-10">
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold font-headline text-foreground">
             Encuentra una Notaría en Huaraz
@@ -163,7 +169,12 @@ export default function Home() {
           </main>
         </div>
       </div>
-      <PieDePagina />
+
+      {/* PieDePagina must also stay above watermark */}
+      <div className="relative z-10">
+        <PieDePagina />
+      </div>
+
       {comparisonList.length > 0 && (
          <div className="sticky bottom-0 left-0 right-0 p-4 bg-background/80 backdrop-blur-sm border-t z-10">
             <div className="container mx-auto flex items-center justify-between">
