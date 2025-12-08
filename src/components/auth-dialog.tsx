@@ -48,9 +48,10 @@ const esquemaRegistro = z.object({
 type DialogoAutenticacionProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultTab?: "login" | "register";
 };
 
-export default function DialogoAutenticacion({ open, onOpenChange }: DialogoAutenticacionProps) {
+export default function DialogoAutenticacion({ open, onOpenChange, defaultTab = "login" }: DialogoAutenticacionProps) {
   const { login, register } = useAuth();
   const { toast } = useToast();
   
@@ -118,7 +119,7 @@ export default function DialogoAutenticacion({ open, onOpenChange }: DialogoAute
             Inicia sesión o crea una cuenta para continuar.
           </DialogDescription>
         </DialogHeader>
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs defaultValue={defaultTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="login">Iniciar Sesión</TabsTrigger>
             <TabsTrigger value="register">Registrarse</TabsTrigger>
