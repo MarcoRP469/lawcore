@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { LogOut, User, Camera } from "lucide-react";
+import DialogoAutenticacion from "./auth-dialog";
 
 // =====================================
 // ESTILOS Y CONFIGURACIÓN
@@ -116,6 +117,8 @@ export default function Encabezado() {
   const { toast } = useToast();
   const [isUploading, setIsUploading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | undefined>(user?.photoURL || "");
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [authTab, setAuthTab] = useState<"login" | "register">("login");
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -348,15 +351,45 @@ export default function Encabezado() {
                   />
                 </>
               ) : (
-                /* 🎨 BOTÓN LOGIN - Modificar estilo aquí */
-                <Button variant={BUTTON_LOGIN_STYLES.variant} size={BUTTON_LOGIN_STYLES.size}>
-                  Iniciar sesión
-                </Button>
+                <div className="flex gap-4">
+                  {/* 🎨 BOTÓN LOGIN */}
+                  <Button
+                    variant={BUTTON_LOGIN_STYLES.variant}
+                    size={BUTTON_LOGIN_STYLES.size}
+                    onClick={() => {
+                      setAuthTab("login");
+                      setIsAuthOpen(true);
+                    }}
+                  >
+                    Iniciar sesión
+                  </Button>
+
+                  {/* 🎨 BOTÓN REGISTRO */}
+                  <Button
+                    variant="outline"
+                    size={BUTTON_LOGIN_STYLES.size}
+                    onClick={() => {
+                      setAuthTab("register");
+                      setIsAuthOpen(true);
+                    }}
+                  >
+                    Registrarte
+                  </Button>
+                </div>
               )}
             </div>
           </div>
         </div>
       </header>
+
+      {/* Diálogo de Autenticación */}
+      {/* Usamos key para forzar el re-render cuando cambia el tab inicial deseado */}
+      <DialogoAutenticacion
+        key={authTab}
+        open={isAuthOpen}
+        onOpenChange={setIsAuthOpen}
+        defaultTab={authTab}
+      />
     </>
   );
 }
