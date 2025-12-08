@@ -234,7 +234,7 @@ export default function PaginaDetalleNotaria() {
                                         <Card className="group relative overflow-hidden rounded-lg cursor-pointer transform transition-transform duration-300 hover:scale-105 hover:shadow-2xl">
                                             <CardContent className="p-0">
                                                 <Image
-                                                    src={(service.images && service.images[0]) || `https://picsum.photos/seed/${service.slug}/400/400`}
+                                                    src={(service.images && service.images[0] && service.images[0].trim() !== "") ? service.images[0] : `https://picsum.photos/seed/${service.slug}/400/400`}
                                                     alt={`Imagen de ${service.name}`}
                                                     width={400}
                                                     height={400}

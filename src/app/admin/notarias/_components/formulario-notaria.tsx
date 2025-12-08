@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+
+// ===== IMPORTS DE UI =====
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,12 +27,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { useToast } from "@/hooks/use-toast";
-import { DISTRITOS, TODOS_LOS_SERVICIOS } from "@/core/datos";
-import type { Notaria, Usuario } from "@/core/tipos";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
+
+// ===== IMPORTS DE ICONOS =====
 import {
   Upload,
   X,
@@ -44,13 +46,17 @@ import {
   Linkedin,
   Loader2,
 } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import api from "@/services/api";
-import { useAuth } from "@/context/auth-provider";
 
-// --------------------------------------
-// Esquemas Zod
-// --------------------------------------
+// ===== IMPORTS DE SERVICIOS Y CONTEXTO =====
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/auth-provider";
+import api from "@/services/api";
+import { DISTRITOS, TODOS_LOS_SERVICIOS } from "@/core/datos";
+import type { Notaria, Usuario } from "@/core/tipos";
+
+// =====================================
+// ESQUEMAS ZOD
+// =====================================
 
 const esquemaServicioDetallado = z.object({
   name: z.string().min(1, "El nombre del servicio no puede estar vacío."),
@@ -105,15 +111,26 @@ const esquemaNotaria = z.object({
 
 type ValoresFormularioNotaria = z.infer<typeof esquemaNotaria>;
 
+// =====================================
+// TIPOS E INTERFACES
+// =====================================
+
 interface FormularioNotariaProps {
   isOpen: boolean;
   onClose: () => void;
   notaria: Notaria | null;
 }
 
-// --------------------------------------
-// Utilidades
-// --------------------------------------
+interface ItemServicioDetalladoProps {
+  form: any;
+  serviceIndex: number;
+  removeService: (index: number) => void;
+  updateServiceImageFile: (imageIndex: number, file: File | null) => void;
+}
+
+// =====================================
+// UTILIDADES
+// =====================================
 
 const slugify = (text: string) =>
   text
@@ -127,7 +144,6 @@ const uploadImage = async (file: File): Promise<string> => {
   }
   const formData = new FormData();
   formData.append("file", file);
-
   const response = await api.post("/upload/", formData);
   return response.data.url;
 };
@@ -152,26 +168,29 @@ const TikTokIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-// --------------------------------------
-// Componente principal
-// --------------------------------------
+// =====================================
+// COMPONENTE PRINCIPAL
+// =====================================
 
 export default function FormularioNotaria({ isOpen, onClose, notaria }: FormularioNotariaProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const isSuperAdmin = user?.role === 'superadmin' || user?.es_admin === true;
 
+  // ===== ESTADOS =====
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [potentialOwners, setPotentialOwners] = useState<Usuario[]>([]);
-
-  // serviceIndex -> imageIndex -> File
   const [detailedServiceFiles, setDetailedServiceFiles] = useState<Record<number, Record<number, File>>>({});
 
+  // ===== REFS =====
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ===== DATOS =====
   const todosLosServicios = Object.values(TODOS_LOS_SERVICIOS);
 
+  // ===== FORM SETUP =====
   const form = useForm<ValoresFormularioNotaria>({
     resolver: zodResolver(esquemaNotaria),
     defaultValues: {
@@ -202,16 +221,15 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
     name: "detailedServices",
   });
 
+  // ===== EFECTOS =====
   useEffect(() => {
-      // Fetch owners list if superadmin
-      if (isSuperAdmin && isOpen) {
-          api.get('/usuarios').then(res => {
-              setPotentialOwners(res.data);
-          }).catch(console.error);
-      }
+    if (isSuperAdmin && isOpen) {
+      api.get('/usuarios').then(res => {
+        setPotentialOwners(res.data);
+      }).catch(console.error);
+    }
   }, [isSuperAdmin, isOpen]);
 
-  // Reset cuando se abre el modal o cambia la notaria
   useEffect(() => {
     if (!isOpen) return;
 
@@ -274,6 +292,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
     setDetailedServiceFiles({});
   }, [isOpen, notaria, form]);
 
+  // ===== MANEJADORES =====
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -311,7 +330,6 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
     setIsSubmitting(true);
 
     try {
-      // Avatar
       let finalAvatarUrl = data.avatarUrl;
       if (avatarFile) {
         finalAvatarUrl = await uploadImage(avatarFile);
@@ -319,7 +337,6 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
         finalAvatarUrl = `https://picsum.photos/seed/${data.name}/100/100`;
       }
 
-      // Servicios detallados (subir imágenes)
       const processedDetailedServices = await Promise.all(
         (data.detailedServices || []).map(async (service, serviceIndex) => {
           const finalImages = await Promise.all(
@@ -370,7 +387,6 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
       }
 
       onClose();
-      // Si quieres, puedes quitar el reload y manejar estados en el padre
       window.location.reload();
     } catch (error: any) {
       console.error(error);
@@ -385,6 +401,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
     }
   };
 
+  // ===== RENDER =====
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl">
@@ -400,8 +417,9 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <ScrollArea className="h-[60vh] pr-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                {/* Columna izquierda */}
+                {/* Columna Izquierda */}
                 <div className="space-y-4">
+                  {/* Nombre */}
                   <FormField
                     control={form.control}
                     name="name"
@@ -416,35 +434,38 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     )}
                   />
 
+                  {/* Propietario (solo SuperAdmin) */}
                   {isSuperAdmin && (
-                      <FormField
-                        control={form.control}
-                        name="ownerId"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Propietario (Usuario Cliente)</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value || ""}>
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Asignar propietario" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                <SelectItem value="">-- Sin asignar (Admin) --</SelectItem>
-                                {potentialOwners.map(u => (
-                                    <SelectItem key={u.id} value={u.id}>
-                                        {u.displayName || u.email} ({u.role || 'public'})
-                                    </SelectItem>
+                    <FormField
+                      control={form.control}
+                      name="ownerId"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Propietario (Usuario Cliente)</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Asignar propietario" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {potentialOwners
+                                .filter(u => u.id && u.id.toString().trim() !== "")
+                                .map(u => (
+                                  <SelectItem key={u.id} value={u.id}>
+                                    {u.displayName || u.email} ({u.role || "public"})
+                                  </SelectItem>
                                 ))}
-                              </SelectContent>
-                            </Select>
-                            <FormDescription>Solo visible para Superadmin</FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>Solo visible para Superadmin</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   )}
 
+                  {/* Dirección */}
                   <FormField
                     control={form.control}
                     name="address"
@@ -458,6 +479,8 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
+                  {/* Distrito */}
                   <FormField
                     control={form.control}
                     name="district"
@@ -482,6 +505,8 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
+                  {/* Teléfono */}
                   <FormField
                     control={form.control}
                     name="phone"
@@ -495,6 +520,8 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
+                  {/* Teléfono Fijo */}
                   <FormField
                     control={form.control}
                     name="landline"
@@ -508,6 +535,8 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
+                  {/* Email */}
                   <FormField
                     control={form.control}
                     name="email"
@@ -521,6 +550,8 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
+                  {/* Website */}
                   <FormField
                     control={form.control}
                     name="website"
@@ -534,6 +565,8 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
+                  {/* Redes Sociales */}
                   <FormField
                     control={form.control}
                     name="facebookUrl"
@@ -549,6 +582,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="instagramUrl"
@@ -564,6 +598,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="tiktokUrl"
@@ -579,6 +614,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     control={form.control}
                     name="linkedinUrl"
@@ -595,7 +631,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     )}
                   />
 
-                  {/* Avatar / Imagen */}
+                  {/* Avatar */}
                   <FormField
                     control={form.control}
                     name="avatarUrl"
@@ -654,6 +690,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     )}
                   />
 
+                  {/* Observaciones */}
                   <FormField
                     control={form.control}
                     name="observations"
@@ -671,6 +708,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     )}
                   />
 
+                  {/* Disponible */}
                   <FormField
                     control={form.control}
                     name="available"
@@ -689,7 +727,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     )}
                   />
 
-                  {/* Servicios generales */}
+                  {/* Servicios Generales */}
                   <FormField
                     control={form.control}
                     name="services"
@@ -743,7 +781,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                   />
                 </div>
 
-                {/* Columna derecha - Servicios detallados */}
+                {/* Columna Derecha - Servicios Detallados */}
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-lg font-medium">Servicios Detallados y Requisitos</h3>
@@ -812,16 +850,9 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
   );
 }
 
-// --------------------------------------
-// ItemServicioDetallado
-// --------------------------------------
-
-interface ItemServicioDetalladoProps {
-  form: any;
-  serviceIndex: number;
-  removeService: (index: number) => void;
-  updateServiceImageFile: (imageIndex: number, file: File | null) => void;
-}
+// =====================================
+// COMPONENTE SECUNDARIO
+// =====================================
 
 function ItemServicioDetallado({
   form,
@@ -840,16 +871,21 @@ function ItemServicioDetallado({
       name: `detailedServices.${serviceIndex}.images`,
     });
 
-  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const { toast } = useToast();
+  // ===== ESTADOS =====
   const [previews, setPreviews] = useState<Record<number, string>>({});
 
+  // ===== REFS =====
+  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const { toast } = useToast();
+
+  // ===== EFECTOS =====
   useEffect(() => {
     return () => {
       Object.values(previews).forEach(URL.revokeObjectURL);
     };
   }, [previews]);
 
+  // ===== MANEJADORES =====
   const handleServiceImageUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
     imageIndex: number
@@ -865,7 +901,6 @@ function ItemServicioDetallado({
         return;
       }
       updateServiceImageFile(imageIndex, file);
-
       const previewUrl = URL.createObjectURL(file);
       setPreviews((p) => ({ ...p, [imageIndex]: previewUrl }));
       updateImg(imageIndex, `placeholder-for-file-${file.name}`);
@@ -885,6 +920,7 @@ function ItemServicioDetallado({
     }
   };
 
+  // ===== RENDER =====
   return (
     <div className="p-4 border rounded-lg space-y-4 relative bg-muted/20">
       <Button
@@ -897,6 +933,7 @@ function ItemServicioDetallado({
         <Trash2 className="h-4 w-4" />
       </Button>
 
+      {/* Nombre Servicio */}
       <FormField
         control={form.control}
         name={`detailedServices.${serviceIndex}.name`}
@@ -921,6 +958,7 @@ function ItemServicioDetallado({
         )}
       />
 
+      {/* Precio */}
       <FormField
         control={form.control}
         name={`detailedServices.${serviceIndex}.price`}
@@ -992,7 +1030,7 @@ function ItemServicioDetallado({
         </div>
       </div>
 
-      {/* Imágenes del servicio */}
+      {/* Imágenes */}
       <div>
         <FormLabel>Imágenes del Servicio</FormLabel>
         <FormDescription>Añade imágenes para el carrusel.</FormDescription>
