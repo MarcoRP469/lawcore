@@ -42,15 +42,15 @@ export default function Encabezado() {
     <>
       <header className="border-b bg-card shadow-sm text-card-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between">
+          <div className="flex h-24 items-center justify-between">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2">
                 <Image
                   src="/logoLawCore.svg"
                   alt="LawCore Logo"
-                  width={80}
-                  height={80}
-                  className="h-20 w-20"
+                  width={96}
+                  height={96}
+                  className="h-24 w-24"
                   priority
                 />
                 <span className="text-xl font-bold tracking-tight">

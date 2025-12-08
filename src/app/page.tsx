@@ -90,8 +90,8 @@ export default function Home() {
         <Image
           src="/logoLawCore.svg"
           alt="LawCore Watermark"
-          width={500}
-          height={500}
+          width={800}
+          height={800}
           priority
         />
       </div>
