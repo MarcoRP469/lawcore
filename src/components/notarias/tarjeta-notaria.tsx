@@ -103,7 +103,7 @@ export default function TarjetaNotaria({ notary, onCompareToggle, isComparing }:
     <Card
         className="flex flex-col h-full transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-card text-card-foreground relative group"
     >
-    <CardHeader className="flex-row gap-4 items-start">
+    <CardHeader className="flex-row gap-4 items-start relative z-10">
       {notary.avatarUrl && notary.avatarUrl.trim() !== "" ? (
         <Image
           src={notary.avatarUrl}
