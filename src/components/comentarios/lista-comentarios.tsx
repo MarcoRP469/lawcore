@@ -1,10 +1,10 @@
 
 "use client";
 
-import type { Comentario } from "@/core/tipos";
+import type { Comentario } from "@/core/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star } from "lucide-react";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 

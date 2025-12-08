@@ -3,15 +3,12 @@
 import * as React from "react";
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import Encabezado from "@/components/encabezado";
-import PieDePagina from "@/components/pie-de-pagina";
-import FiltrosNotaria from "@/components/filtros-notaria";
-import TarjetaNotaria from "@/components/tarjeta-notaria";
+import { Encabezado, PieDePagina } from "@/components/common";
+import { FiltrosNotaria, TarjetaNotaria, DialogoComparacion } from "@/components/notarias";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
-import type { Notaria } from "@/core/tipos";
-import DialogoComparacion from "@/components/dialogo-comparacion";
+import type { Notaria } from "@/core/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useData } from "@/hooks/use-data";
 

@@ -3,7 +3,7 @@
 
 import { useMemo } from "react";
 import TablaUsuarios from "./_components/tabla-usuarios";
-import type { Usuario } from "@/core/tipos";
+import type { Usuario } from "@/core/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useData } from "@/hooks/use-data";
 import { useUser } from "@/context/auth-provider";

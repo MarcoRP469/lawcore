@@ -1,20 +1,17 @@
-
 "use client";
 
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import Encabezado from "@/components/encabezado";
-import PieDePagina from "@/components/pie-de-pagina";
+import { Encabezado, PieDePagina } from "@/components/common";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Home, Phone, Mail, MapPin, Star, ArrowLeft, Briefcase, FileText, CheckCircle2, MessageSquare, UserCircle, Video, Globe, Facebook, Instagram, Linkedin, User } from "lucide-react";
-import FormularioComentario from "@/components/formulario-comentario";
-import ListaComentarios from "@/components/lista-comentarios";
+import { FormularioComentario, ListaComentarios } from "@/components/comentarios";
 import { useMemo } from "react";
-import type { Notaria, Comentario } from "@/core/tipos";
+import type { Notaria, Comentario } from "@/core/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
