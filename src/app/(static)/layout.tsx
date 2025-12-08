@@ -1,6 +1,5 @@
 
-import PieDePagina from "@/components/pie-de-pagina";
-import Encabezado from "@/components/encabezado";
+import { PieDePagina, Encabezado } from "@/components/common";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

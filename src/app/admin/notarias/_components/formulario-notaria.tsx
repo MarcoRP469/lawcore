@@ -51,8 +51,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/auth-provider";
 import api from "@/services/api";
-import { DISTRITOS, TODOS_LOS_SERVICIOS } from "@/core/datos";
-import type { Notaria, Usuario } from "@/core/tipos";
+import { DISTRITOS, TODOS_LOS_SERVICIOS } from "@/core/constants/servicios";
+import type { Notaria, Usuario } from "@/core/types";
 
 // =====================================
 // ESQUEMAS ZOD

@@ -1,5 +1,5 @@
 
-import type { Notaria, Comentario, Usuario } from './tipos';
+import type { Notaria, Comentario, Usuario } from '@/core/types';
 
 export const mockUsers: Usuario[] = [
   {

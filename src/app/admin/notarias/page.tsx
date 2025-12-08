@@ -6,7 +6,7 @@ import { PlusCircle } from "lucide-react";
 import TablaNotarias from "./_components/tabla-notarias";
 import { Skeleton } from "@/components/ui/skeleton";
 import FormularioNotaria from "./_components/formulario-notaria";
-import type { Notaria } from "@/core/tipos";
+import type { Notaria } from "@/core/types";
 import { useData } from "@/hooks/use-data";
 import { useAuth } from "@/context/auth-provider";
 

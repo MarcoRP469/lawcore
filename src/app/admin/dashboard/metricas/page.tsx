@@ -54,7 +54,7 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import type { Notaria, MetricasDashboard, ComentarioReciente, FuenteTrafico } from "@/core/tipos";
+import type { Notaria, MetricasDashboard, ComentarioReciente, FuenteTrafico } from "@/core/types";
 import { Skeleton } from "@/components/ui/skeleton"
 import { useData, useOneData } from "@/hooks/use-data";
 import { useUser } from "@/context/auth-provider";

@@ -36,7 +36,7 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { DISTRITOS, TODOS_LOS_SERVICIOS } from "@/core/datos";
+import { DISTRITOS, TODOS_LOS_SERVICIOS } from "@/core/constants/servicios";
 import { type LucideIcon } from "lucide-react";
 
 interface FiltrosNotariaProps {

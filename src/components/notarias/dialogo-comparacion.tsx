@@ -17,8 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Check, Mail, Minus, Phone, Users, Globe } from "lucide-react";
-import type { Notaria } from "@/core/tipos";
-import { TODOS_LOS_SERVICIOS } from "@/core/datos";
+import type { Notaria } from "@/core/types";
+import { TODOS_LOS_SERVICIOS } from "@/core/constants/servicios";
 
 interface DialogoComparacionProps {
   notaries: Notaria[];

@@ -261,6 +261,6 @@ export const getComponentClasses = (component: keyof typeof COMPONENTS, variant:
 // ============================================
 // CONSTANTES PARA VALIDACIÓN
 // ============================================
-export const VALID_SIZES = Object.keys(SIZES.icon) as const;
-export const VALID_COLORS = Object.keys(COLORS) as const;
-export const VALID_COMPONENTS = Object.keys(COMPONENTS) as const;
+export const VALID_SIZES = Object.keys(SIZES.icon);
+export const VALID_COLORS = Object.keys(COLORS);
+export const VALID_COMPONENTS = Object.keys(COMPONENTS);

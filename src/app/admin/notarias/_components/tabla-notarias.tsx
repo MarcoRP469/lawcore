@@ -36,7 +36,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import type { Notaria } from "@/core/tipos";
+import type { Notaria } from "@/core/types";
 import {
   AlertDialog,
   AlertDialogAction,

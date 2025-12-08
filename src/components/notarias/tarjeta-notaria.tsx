@@ -9,8 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Phone, Mail, MapPin, Star, Info, Globe, MessageSquareQuote, Facebook, Instagram, Linkedin, User } from "lucide-react";
-import type { Notaria } from "@/core/tipos";
-import { TODOS_LOS_SERVICIOS } from "@/core/datos";
+import type { Notaria } from "@/core/types";
+import { TODOS_LOS_SERVICIOS } from "@/core/constants/servicios";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
