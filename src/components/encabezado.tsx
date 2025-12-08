@@ -53,31 +53,31 @@ const LOGO_STYLES = {
   fontWeight: "font-bold", // Cambiar: "font-semibold", "font-extrabold", etc.
 
   // Espaciado entre logo e imagen
-  gap: "gap-4", // Cambiar: "gap-1", "gap-4", etc.
+  gap: "gap-2", // Cambiar: "gap-1", "gap-4", etc.
 };
 
 // 🎨 ESTILOS DEL AVATAR (PERFIL)
 const AVATAR_STYLES = {
   // Tamaño del avatar en el dropdown
-  avatarSize: "h-10 w-10", // Cambiar: "h-8 w-8", "h-12 w-12", etc.
+  avatarSize: "h-16 w-16", // Cambiar: "h-8 w-8", "h-12 w-12", etc.
 
   // Tamaño del avatar dentro del dropdown menu
-  dropdownAvatarSize: "h-8 w-8", // Cambiar: "h-6 w-6", "h-10 w-10", etc.
+  dropdownAvatarSize: "h-10 w-10", // Cambiar: "h-6 w-6", "h-10 w-10", etc.
 
   // Color de borde del avatar
-  borderColor: "border-blue-300", // Cambiar: "border-red-300", "border-green-300", etc.
+  borderColor: "border-[#B28715]", // Cambiar: "border-red-300", "border-green-300", etc.
 
   // Grosor del borde
-  borderWidth: "border-4", // Cambiar: "border-2", "border-8", etc.
+  borderWidth: "border-2", // Cambiar: "border-2", "border-8", etc.
 
   // Tamaño del nombre de usuario
-  nameTextSize: "text-sm", // Cambiar: "text-xs", "text-base", etc.
+  nameTextSize: "text-base", // Cambiar: "text-xs", "text-base", etc.
 
   // Peso de la fuente del nombre
   nameFontWeight: "font-medium", // Cambiar: "font-semibold", "font-bold", etc.
 
   // Tamaño del email en el dropdown
-  emailTextSize: "text-xs", // Cambiar: "text-sm", etc.
+  emailTextSize: "text-s", // Cambiar: "text-sm", etc.
 };
 
 // 🎨 ESTILOS DE NAVEGACIÓN
@@ -92,12 +92,12 @@ const NAV_STYLES = {
   textColor: "text-muted-foreground", // Cambiar: "text-slate-600", "text-gray-500", etc.
 
   // Color del texto al pasar el mouse
-  hoverColor: "hover:text-foreground", // Cambiar: "hover:text-blue-600", etc.
+  hoverColor: "hover:text-[#B28715]", // Cambiar: "hover:text-blue-600", etc.
 };
 
 // 🎨 ESTILOS DEL BOTÓN ADMIN
 const BUTTON_ADMIN_STYLES = {
-  variant: "outline", // Cambiar: "default", "ghost", "secondary", etc.
+  variant: "default", // Cambiar: "default", "ghost", "secondary", etc.
   size: "sm", // Cambiar: "xs", "md", "lg", etc.
   // Para más estilos, edita el componente Button
 } as const; 
@@ -264,7 +264,9 @@ export default function Encabezado() {
                   {/* 🎨 BOTÓN ADMIN - Modificar estilo aquí */}
                   {isAdminAccess && (
                     <Link href="/admin/dashboard">
-                      <Button variant={BUTTON_ADMIN_STYLES.variant} size={BUTTON_ADMIN_STYLES.size}>
+                      <Button variant={BUTTON_ADMIN_STYLES.variant} size={BUTTON_ADMIN_STYLES.size}
+                      className="border-2 border-[#B28715] bg-[#F3F5F7] text-[#2B3B55] text-lg font-bold hover:bg-[#B28715] hover:text-white transition-all"
+                      >
                         Admin
                       </Button>
                     </Link>
@@ -275,12 +277,14 @@ export default function Encabezado() {
                     <DropdownMenuTrigger asChild>
                       {/* 🎨 AVATAR - Modificar tamaño y borde aquí */}
                       <Button variant="ghost" className={`relative ${AVATAR_STYLES.avatarSize} rounded-full p-0`}>
-                        <Avatar className={AVATAR_STYLES.avatarSize}>
+                        <Avatar className={`${AVATAR_STYLES.avatarSize} ${AVATAR_STYLES.borderColor} ${AVATAR_STYLES.borderWidth} rounded-full`}>
                           <AvatarImage
                             src={avatarUrl || ""}
                             alt={user?.displayName || "Usuario"}
                           />
-                          <AvatarFallback>
+                          <AvatarFallback
+                          className="text-[#F3F5F7] bg-[#0F1729] text-xl font-bold hover:bg-[#F3F5F7] hover:text-[#0F1729] transition-all"
+                          >
                             {getInitials(user?.displayName)}
                           </AvatarFallback>
                         </Avatar>
@@ -356,6 +360,7 @@ export default function Encabezado() {
                   <Button
                     variant={BUTTON_LOGIN_STYLES.variant}
                     size={BUTTON_LOGIN_STYLES.size}
+                    className="bg-#F3F5F7 text-[#B28715] text-xl hover:bg-[#9a7412] hover:text-white transition-colors"
                     onClick={() => {
                       setAuthTab("login");
                       setIsAuthOpen(true);
@@ -368,6 +373,7 @@ export default function Encabezado() {
                   <Button
                     variant="outline"
                     size={BUTTON_LOGIN_STYLES.size}
+                    className="border-2 border-[#B28715] text-xl text-white hover:bg-[#B28715] hover:text-white transition-colors"
                     onClick={() => {
                       setAuthTab("register");
                       setIsAuthOpen(true);
