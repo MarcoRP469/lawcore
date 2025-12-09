@@ -225,7 +225,7 @@ def generate_notaria_summary(
         raise HTTPException(status_code=404, detail="Notaria not found")
     
     # Permission check
-    if current_user.es_admin:
+    if current_user.role == 'superadmin' or current_user.es_admin:
         pass # Allow access if marked as admin (legacy or superadmin override)
     elif current_user.role == 'client':
         if db_notaria.usuario_id != current_user.id:
