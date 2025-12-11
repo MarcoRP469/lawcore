@@ -25,8 +25,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, ArrowLeft } from "lucide-react";
 import type { Metadata } from 'next';
 
 const esquemaFormularioContacto = z.object({
@@ -72,6 +73,14 @@ export default function PaginaContacto() {
     <div className="bg-background text-foreground">
       <div className="container mx-auto px-4 py-16">
         <div className="mx-auto max-w-5xl">
+          <div className="mb-6">
+            <Button variant="ghost" asChild>
+              <Link href="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Volver al inicio
+              </Link>
+            </Button>
+          </div>
           <header className="text-center mb-16">
             <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline text-primary">
               Contacto
