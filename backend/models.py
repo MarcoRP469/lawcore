@@ -27,6 +27,15 @@ class Usuario(Base):
     comentarios = relationship("Comentario", back_populates="usuario")
     notarias = relationship("Notaria", back_populates="usuario")
 
+class RegistroBusqueda(Base):
+    __tablename__ = "registros_busqueda"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    termino = Column(String(255), nullable=False, index=True)
+    usuario_id = Column(String(128), nullable=True) # Opcional, si está logueado
+    fecha = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    cantidad_resultados = Column(Integer, default=0)
+
 class Notaria(Base):
     __tablename__ = "notarias"
 
@@ -48,6 +57,16 @@ class Notaria(Base):
     observaciones = Column(Text, nullable=True)
     resumen_coment = Column(Text, nullable=True)
     creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+
+    # Geolocalización para cálculo de distancia
+    latitud = Column(Float, nullable=True, comment="Latitud para búsqueda por proximidad")
+    longitud = Column(Float, nullable=True, comment="Longitud para búsqueda por proximidad")
+    
+    # Métricas de conversión (actualizar automáticamente)
+    total_visitas = Column(Integer, default=0, nullable=False)
+    total_comentarios = Column(Integer, default=0, nullable=False)
+    tasa_conversion = Column(Float, default=0.0, nullable=False, comment="Comentarios / Visitas")
+    relevancia_score = Column(Float, default=0.0, nullable=False, comment="Score de relevancia del algoritmo de ranking")
 
     # Nuevo campo de propietario
     usuario_id = Column(String(128), ForeignKey("usuarios.id", ondelete="SET NULL", onupdate="CASCADE"), nullable=True)

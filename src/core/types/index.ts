@@ -89,15 +89,33 @@ export type Metrica = {
 };
 
 export type FuenteTrafico = {
-    source: string;
-    visitors: number;
-    fill: string;
+  source: string;
+  visitors: number;
+  fill: string;
 }
 
 export type MetricasDashboard = {
-    kpi: Metrica;
-    visitas: Visita[];
-    topNotarias: { name: string; views: number }[];
-    comentariosRecientes: ComentarioReciente[];
-    fuentesTrafico: FuenteTrafico[];
+  kpi: Metrica;
+  visitas: Visita[];
+  topNotarias: { name: string; views: number }[];
+  comentariosRecientes: ComentarioReciente[];
+  fuentesTrafico: FuenteTrafico[];
+  tendencias: TendenciaBusqueda;
+  alertas: AlertaCalidad[];
 }
+
+export type TendenciaBusqueda = {
+  top_terminos: { termino: string; frecuencia: number }[];
+  tendencia: { fecha: string; total: number }[];
+  brechas_datos: { termino: string; intentos: number }[];
+}
+
+export type AlertaCalidad = {
+  notaria_id: number;
+  nombre: string;
+  media: number;
+  desviacion: number;
+  cantidad_calificaciones: number;
+  mensaje: string;
+}
+

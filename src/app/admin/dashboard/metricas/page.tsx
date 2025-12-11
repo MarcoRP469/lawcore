@@ -41,11 +41,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select"
 import {
   ChartContainer,
@@ -54,11 +54,11 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from "@/components/ui/chart"
-import type { Notaria, MetricasDashboard, ComentarioReciente, FuenteTrafico } from "@/core/types";
+import type { Notaria, MetricasDashboard, ComentarioReciente, FuenteTrafico, TendenciaBusqueda, AlertaCalidad } from "@/core/types";
 import { Skeleton } from "@/components/ui/skeleton"
 import { useData, useOneData } from "@/hooks/use-data";
 import { useUser } from "@/context/auth-provider";
-import { generateSummary } from "@/services/api";
+import { generateSummary, getAnalyticsTrends, getQualityAlerts } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -91,19 +91,19 @@ export default function PaginaMetricasDashboard() {
 
   // 2. Auto-select for client
   React.useEffect(() => {
-      if (isClient && notaries && notaries.length > 0) {
-          setNotariaSeleccionada(notaries[0].id.toString());
-      }
+    if (isClient && notaries && notaries.length > 0) {
+      setNotariaSeleccionada(notaries[0].id.toString());
+    }
   }, [isClient, notaries]);
 
   const handleGenerateSummary = async () => {
     if (notariaSeleccionada === "all") return;
-    
+
     setIsGenerating(true);
     try {
       const response = await generateSummary(notariaSeleccionada);
       const newSummary = response.data.summary;
-      
+
       setGeneratedSummaries(prev => ({
         ...prev,
         [notariaSeleccionada]: newSummary
@@ -139,17 +139,21 @@ export default function PaginaMetricasDashboard() {
   const endpointMetrics = isClient ? `/metricas?owner_id=${user?.id}` : "/metricas";
   const { data: metricsData, isLoading: loadingMetrics } = useOneData<MetricasDashboard>(endpointMetrics);
 
+  // 4. Fetch Advanced Analytics (Only Superadmin)
+  const { data: tendencias } = useOneData<TendenciaBusqueda>(isSuperAdmin ? "/metricas/tendencias-busqueda" : null);
+  const { data: alertasCalidad } = useOneData<{ alertas: AlertaCalidad[] }>(isSuperAdmin ? "/metricas/alertas-calidad" : null);
+
   const resumenSeleccionado = React.useMemo(() => {
     if (cargandoNotarias) return null;
 
     if (notariaSeleccionada === "all") {
-        if (isClient) return "Cargando tu notaría...";
-        return "Selecciona una notaría para ver el resumen de sus comentarios.";
+      if (isClient) return "Cargando tu notaría...";
+      return "Selecciona una notaría para ver el resumen de sus comentarios.";
     }
 
     // Check if we have a locally generated summary first
     if (generatedSummaries[notariaSeleccionada]) {
-        return generatedSummaries[notariaSeleccionada];
+      return generatedSummaries[notariaSeleccionada];
     }
 
     const selectedNotary = notaries?.find(n => n.id.toString() === notariaSeleccionada);
@@ -157,13 +161,13 @@ export default function PaginaMetricasDashboard() {
   }, [notariaSeleccionada, notaries, cargandoNotarias, isClient, generatedSummaries]);
 
   if (loadingMetrics || !metricsData) {
-      return <div className="p-8 space-y-4">
-          <Skeleton className="h-32 w-full" />
-          <div className="grid grid-cols-2 gap-4">
-              <Skeleton className="h-64 w-full" />
-              <Skeleton className="h-64 w-full" />
-          </div>
+    return <div className="p-8 space-y-4">
+      <Skeleton className="h-32 w-full" />
+      <div className="grid grid-cols-2 gap-4">
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full" />
       </div>
+    </div>
   }
 
   const { kpi, visitas, topNotarias, comentariosRecientes, fuentesTrafico } = metricsData;
@@ -192,7 +196,7 @@ export default function PaginaMetricasDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                 {isClient ? "Usuarios Únicos" : "Nuevos Usuarios"}
+                {isClient ? "Usuarios Únicos" : "Nuevos Usuarios"}
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -238,7 +242,7 @@ export default function PaginaMetricasDashboard() {
               <CardTitle>Visión General de Visitas</CardTitle>
             </CardHeader>
             <CardContent className="pl-2">
-               <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+              <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                 <LineChart data={visitas} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
                   <CartesianGrid vertical={false} />
                   <XAxis
@@ -284,96 +288,96 @@ export default function PaginaMetricasDashboard() {
             </CardHeader>
             <CardContent>
               {topNotarias.length > 0 ? (
-                  <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                    <BarChart data={topNotarias} layout="vertical" margin={{ left: -10, right: 20 }}>
-                      <CartesianGrid horizontal={false} />
-                      <YAxis
-                        dataKey="name"
-                        type="category"
-                        tickLine={false}
-                        axisLine={false}
-                        tickMargin={8}
-                        width={80}
-                      />
-                      <XAxis type="number" hide />
-                      <Tooltip cursor={false} content={<ChartTooltipContent />} />
-                      <Bar dataKey="views" fill="var(--color-notaries)" radius={4} />
-                    </BarChart>
-                  </ChartContainer>
+                <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                  <BarChart data={topNotarias} layout="vertical" margin={{ left: -10, right: 20 }}>
+                    <CartesianGrid horizontal={false} />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      width={80}
+                    />
+                    <XAxis type="number" hide />
+                    <Tooltip cursor={false} content={<ChartTooltipContent />} />
+                    <Bar dataKey="views" fill="var(--color-notaries)" radius={4} />
+                  </BarChart>
+                </ChartContainer>
               ) : (
-                  <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
-                      No hay datos suficientes.
-                  </div>
+                <div className="flex items-center justify-center h-[200px] text-muted-foreground text-sm">
+                  No hay datos suficientes.
+                </div>
               )}
             </CardContent>
           </Card>
-          
+
           {/* AI Summary Section */}
           <Card className="xl:col-span-3">
             <CardHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <CardTitle className="flex items-center gap-2">
-                            <Search className="h-6 w-6 text-primary" />
-                            Análisis de Comentarios por IA
-                        </CardTitle>
-                        <CardDescription>Selecciona una notaría para ver el resumen de sus comentarios generado por IA.</CardDescription>
-                    </div>
-                    {cargandoNotarias ? (
-                        <Skeleton className="h-10 w-full sm:w-[280px]" />
-                    ) : (
-                        <Select
-                            value={notariaSeleccionada}
-                            onValueChange={setNotariaSeleccionada}
-                            disabled={isClient}
-                        >
-                            <SelectTrigger className="w-full sm:w-[280px]">
-                                <SelectValue placeholder="Seleccionar notaría..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {isSuperAdmin && <SelectItem value="all">Seleccionar Notaría</SelectItem>}
-                                {notaries?.map(n => <SelectItem key={n.id} value={n.id.toString()}>{n.name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                    )}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Search className="h-6 w-6 text-primary" />
+                    Análisis de Comentarios por IA
+                  </CardTitle>
+                  <CardDescription>Selecciona una notaría para ver el resumen de sus comentarios generado por IA.</CardDescription>
                 </div>
+                {cargandoNotarias ? (
+                  <Skeleton className="h-10 w-full sm:w-[280px]" />
+                ) : (
+                  <Select
+                    value={notariaSeleccionada}
+                    onValueChange={setNotariaSeleccionada}
+                    disabled={isClient}
+                  >
+                    <SelectTrigger className="w-full sm:w-[280px]">
+                      <SelectValue placeholder="Seleccionar notaría..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isSuperAdmin && <SelectItem value="all">Seleccionar Notaría</SelectItem>}
+                      {notaries?.map(n => <SelectItem key={n.id} value={n.id.toString()}>{n.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-semibold">Resumen Generado por IA:</h4>
-                  {!resumenSeleccionado && notariaSeleccionada !== "all" && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleGenerateSummary}
-                      disabled={isGenerating}
-                    >
-                      {isGenerating ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generando...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Generar Resumen
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
-                {resumenSeleccionado ? (
-                   <p className="text-sm text-muted-foreground italic">&ldquo;{resumenSeleccionado}&rdquo;</p>
-                ) : (
-                   <p className="text-sm text-muted-foreground italic">
-                     {notariaSeleccionada === "all" ? "Selecciona una notaría." : "No hay resumen disponible. Haz clic en Generar."}
-                   </p>
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold">Resumen Generado por IA:</h4>
+                {!resumenSeleccionado && notariaSeleccionada !== "all" && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateSummary}
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generando...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generar Resumen
+                      </>
+                    )}
+                  </Button>
                 )}
+              </div>
+              {resumenSeleccionado ? (
+                <p className="text-sm text-muted-foreground italic">&ldquo;{resumenSeleccionado}&rdquo;</p>
+              ) : (
+                <p className="text-sm text-muted-foreground italic">
+                  {notariaSeleccionada === "all" ? "Selecciona una notaría." : "No hay resumen disponible. Haz clic en Generar."}
+                </p>
+              )}
             </CardContent>
           </Card>
 
-           {/* Recent Comments Table */}
-           <Card className="xl:col-span-3">
+          {/* Recent Comments Table */}
+          <Card className="xl:col-span-3">
             <CardHeader>
               <CardTitle>Comentarios Recientes</CardTitle>
               <CardDescription>
@@ -401,15 +405,15 @@ export default function PaginaMetricasDashboard() {
                       </TableCell>
                       <TableCell>{comment.notaryName}</TableCell>
                       <TableCell className="text-right flex items-center justify-end gap-1">
-                          {comment.rating} <Star className="h-4 w-4 text-primary" />
+                        {comment.rating} <Star className="h-4 w-4 text-primary" />
                       </TableCell>
-                       <TableCell>{new Date(comment.date).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(comment.date).toLocaleDateString()}</TableCell>
                     </TableRow>
                   )) : (
                     <TableRow>
-                        <TableCell colSpan={4} className="h-24 text-center">
-                            No hay comentarios recientes.
-                        </TableCell>
+                      <TableCell colSpan={4} className="h-24 text-center">
+                        No hay comentarios recientes.
+                      </TableCell>
                     </TableRow>
                   )}
                 </TableBody>
@@ -417,14 +421,14 @@ export default function PaginaMetricasDashboard() {
             </CardContent>
           </Card>
 
-           {/* Pie Chart: Traffic Source (Static for now) */}
-           <Card className="xl:col-span-3">
+          {/* Pie Chart: Traffic Source (Static for now) */}
+          <Card className="xl:col-span-3">
             <CardHeader>
               <CardTitle>Fuentes de Tráfico</CardTitle>
-               <CardDescription>Distribución de visitas al sitio web (Simulado).</CardDescription>
+              <CardDescription>Distribución de visitas al sitio web (Simulado).</CardDescription>
             </CardHeader>
             <CardContent>
-               <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+              <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                 <PieChart>
                   <Tooltip content={<ChartTooltipContent hideLabel />} />
                   <Pie
@@ -446,7 +450,127 @@ export default function PaginaMetricasDashboard() {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
+
+        {/* --- NUEVO: Módulos de Analítica Avanzada (Solo Superadmin) --- */}
+        {
+          isSuperAdmin && tendencias && (
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <h2 className="text-xl font-semibold">Inteligencia de Mercado y Calidad</h2>
+              </div>
+              <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
+                {/* Top Búsquedas */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Top Términos Buscados</CardTitle>
+                    <CardDescription>Lo que más buscan los usuarios.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Término</TableHead>
+                          <TableHead className="text-right">Frecuencia</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {tendencias?.top_terminos && tendencias.top_terminos.length > 0 ? (
+                          tendencias.top_terminos.map((t, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-medium">{t.termino}</TableCell>
+                              <TableCell className="text-right">{t.frecuencia}</TableCell>
+                            </TableRow>
+                          ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={2} className="text-center text-muted-foreground py-4">
+                              No hay datos de búsquedas disponibles
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+
+                {/* Brechas de Demanda */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Brechas de Demanda (0 Resultados)</CardTitle>
+                    <CardDescription>Oportunidades no cubiertas (Alta demanda, sin oferta).</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Término</TableHead>
+                          <TableHead className="text-right">Intentos Fallidos</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {tendencias?.brechas_datos && tendencias.brechas_datos.length > 0 ? (
+                          <>
+                            {tendencias.brechas_datos.map((b, i) => (
+                              <TableRow key={i}>
+                                <TableCell className="font-medium text-red-500">{b.termino}</TableCell>
+                                <TableCell className="text-right">{b.intentos}</TableCell>
+                              </TableRow>
+                            ))}
+                          </>
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={2} className="text-center text-muted-foreground py-4">
+                              Sin brechas detectadas
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+
+                {/* Alertas de Calidad */}
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5 text-orange-500" />
+                      Alertas de Calidad (Anomalías)
+                    </CardTitle>
+                    <CardDescription>Notarías con patrones de calificación inconsistentes (Alta media, alta desviación).</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Notaría</TableHead>
+                          <TableHead className="text-right">Media</TableHead>
+                          <TableHead className="text-right">Desviación (σ)</TableHead>
+                          <TableHead>Mensaje</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {alertasCalidad?.alertas.map((a, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-bold">{a.nombre}</TableCell>
+                            <TableCell className="text-right">{a.media}</TableCell>
+                            <TableCell className="text-right text-orange-600">{a.desviacion}</TableCell>
+                            <TableCell>{a.mensaje}</TableCell>
+                          </TableRow>
+                        ))}
+                        {(!alertasCalidad?.alertas || alertasCalidad.alertas.length === 0) && (
+                          <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">No hay alertas de calidad activas.</TableCell></TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          )
+        }
+      </main >
+    </div >
+  )
+}
   )
 }
