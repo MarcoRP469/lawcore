@@ -47,6 +47,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(usuarios.router)
 app.include_router(notarias.router, prefix="/notarias", tags=["notarias"])
 app.include_router(comentarios.router, prefix="/comentarios", tags=["comentarios"])
 app.include_router(anuncios.router, prefix="/anuncios", tags=["anuncios"])
