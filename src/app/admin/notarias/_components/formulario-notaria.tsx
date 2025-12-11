@@ -53,6 +53,8 @@ import { useAuth } from "@/context/auth-provider";
 import api from "@/services/api";
 import { DISTRITOS, TODOS_LOS_SERVICIOS } from "@/core/constants/servicios";
 import type { Notaria, Usuario } from "@/core/types";
+import { ImageUploader } from "@/components/admin/image-uploader";
+import { ScheduleEditor } from "@/components/admin/schedule-editor";
 
 // =====================================
 // ESQUEMAS ZOD
@@ -61,6 +63,7 @@ import type { Notaria, Usuario } from "@/core/types";
 const esquemaServicioDetallado = z.object({
   name: z.string().min(1, "El nombre del servicio no puede estar vacío."),
   slug: z.string(),
+  category: z.string().optional(),
   price: z.preprocess(
     (val) => (val === "" || val === null ? undefined : val),
     z
@@ -93,18 +96,27 @@ const esquemaNotaria = z.object({
   tiktokUrl: urlValidation,
   linkedinUrl: urlValidation,
   available: z.boolean().default(false),
-  services: z
-    .array(z.string())
-    .refine((value) => value.some((item) => item), {
-      message: "Tienes que seleccionar al menos un servicio.",
-    }),
+  autoAvailability: z.boolean().default(false).optional(),
+  schedule: z.any().optional(), // Schedule type from types/index.ts
+  services: z.array(z.string()).optional().default([]),
   avatarUrl: z
     .string()
     .url({ message: "Por favor selecciona una imagen de referencia." })
     .or(z.literal("")),
   rating: z.coerce.number().min(0).max(5).default(0),
   observations: z.string().optional(),
-  detailedServices: z.array(esquemaServicioDetallado).optional(),
+  detailedServices: z
+    .array(esquemaServicioDetallado)
+    .optional()
+    .refine(
+      (services) => {
+        if (!services || services.length === 0) return true;
+        return services.some((s) => s.category && s.category.trim() !== "");
+      },
+      {
+        message: "Al menos un servicio detallado debe tener una categoría asignada.",
+      }
+    ),
   commentSummary: z.string().optional(),
   ownerId: z.string().optional(),
 });
@@ -235,56 +247,60 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
 
     const defaultValues: Partial<ValoresFormularioNotaria> = notaria
       ? {
-          ...notaria,
-          name: notaria.name || "",
-          address: notaria.address || "",
-          district: notaria.district || "",
-          phone: notaria.phone || "",
-          email: notaria.email || "",
-          available: notaria.available || false,
-          services: notaria.services || [],
-          avatarUrl: notaria.avatarUrl || "",
-          observations: notaria.observations || "",
-          website: notaria.website || "",
-          facebookUrl: notaria.facebookUrl || "",
-          instagramUrl: notaria.instagramUrl || "",
-          tiktokUrl: notaria.tiktokUrl || "",
-          linkedinUrl: notaria.linkedinUrl || "",
-          landline: notaria.landline || "",
-          rating: notaria.rating || 0,
-          detailedServices: (notaria.detailedServices || []).map((s) => ({
-            ...s,
-            name: s.name || "",
-            slug: s.slug || "",
-            requisitos: s.requisitos || [],
-            images: s.images || [],
-            videoUrl: s.videoUrl || "",
-            price: s.price === undefined ? "" : s.price,
-          })) as any,
-          commentSummary: notaria.commentSummary || "Aún no hay suficientes comentarios para un resumen.",
-          ownerId: (notaria as any).userId || "",
-        }
+        ...notaria,
+        name: notaria.name || "",
+        address: notaria.address || "",
+        district: notaria.district || "",
+        phone: notaria.phone || "",
+        email: notaria.email || "",
+        available: notaria.available || false,
+        autoAvailability: notaria.autoAvailability || false,
+        schedule: notaria.schedule || undefined,
+        services: Array.isArray(notaria.services) ? notaria.services : [],
+        avatarUrl: notaria.avatarUrl || "",
+        observations: notaria.observations || "",
+        website: notaria.website || "",
+        facebookUrl: notaria.facebookUrl || "",
+        instagramUrl: notaria.instagramUrl || "",
+        tiktokUrl: notaria.tiktokUrl || "",
+        linkedinUrl: notaria.linkedinUrl || "",
+        landline: notaria.landline || "",
+        rating: notaria.rating || 0,
+        detailedServices: (notaria.detailedServices || []).map((s) => ({
+          ...s,
+          name: s.name || "",
+          slug: s.slug || "",
+          requisitos: s.requisitos || [],
+          images: s.images || [],
+          videoUrl: s.videoUrl || "",
+          price: s.price === undefined ? "" : s.price,
+        })) as any,
+        commentSummary: notaria.commentSummary || "Aún no hay suficientes comentarios para un resumen.",
+        ownerId: (notaria as any).userId || "",
+      }
       : {
-          name: "",
-          address: "",
-          district: "",
-          phone: "",
-          landline: "",
-          email: "",
-          website: "",
-          facebookUrl: "",
-          instagramUrl: "",
-          tiktokUrl: "",
-          linkedinUrl: "",
-          available: false,
-          services: [],
-          rating: 0,
-          avatarUrl: "",
-          observations: "",
-          detailedServices: [],
-          commentSummary: "Aún no hay suficientes comentarios para un resumen.",
-          ownerId: "",
-        };
+        name: "",
+        address: "",
+        district: "",
+        phone: "",
+        landline: "",
+        email: "",
+        website: "",
+        facebookUrl: "",
+        instagramUrl: "",
+        tiktokUrl: "",
+        linkedinUrl: "",
+        available: false,
+        autoAvailability: false,
+        schedule: undefined,
+        services: [],
+        rating: 0,
+        avatarUrl: "",
+        observations: "",
+        detailedServices: [],
+        commentSummary: "Aún no hay suficientes comentarios para un resumen.",
+        ownerId: "",
+      };
 
     form.reset(defaultValues as ValoresFormularioNotaria);
     setImagePreview(defaultValues.avatarUrl || null);
@@ -644,8 +660,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                               <Image
                                 src={
                                   imagePreview ||
-                                  `https://picsum.photos/seed/${
-                                    form.getValues("name") || "default"
+                                  `https://picsum.photos/seed/${form.getValues("name") || "default"
                                   }/120/120`
                                 }
                                 alt="Vista previa del avatar"
@@ -715,9 +730,34 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Disponible Ahora</FormLabel>
+                          <FormLabel>Disponible Ahora (Manual)</FormLabel>
                           <FormDescription>
-                            Indica si la notaría está atendiendo actualmente.
+                            {form.watch("autoAvailability")
+                              ? "Desactivado - usando disponibilidad automática"
+                              : "Indica manualmente si la notaría está atendiendo"}
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            disabled={form.watch("autoAvailability")}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Disponibilidad Automática */}
+                  <FormField
+                    control={form.control}
+                    name="autoAvailability"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-primary/5">
+                        <div className="space-y-0.5">
+                          <FormLabel>Disponibilidad Automática</FormLabel>
+                          <FormDescription>
+                            Calcula automáticamente según horarios de atención
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -727,6 +767,29 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     )}
                   />
 
+                  {/* Editor de Horarios */}
+                  {form.watch("autoAvailability") && (
+                    <FormField
+                      control={form.control}
+                      name="schedule"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Horarios de Atención</FormLabel>
+                          <FormDescription>
+                            Configura los horarios por día de la semana
+                          </FormDescription>
+                          <FormControl>
+                            <ScheduleEditor
+                              schedule={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
                   {/* Servicios Generales */}
                   <FormField
                     control={form.control}
@@ -734,10 +797,10 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     render={() => (
                       <FormItem>
                         <div className="mb-4">
-                          <FormLabel className="text-base">Servicios (Generales)</FormLabel>
+                          <FormLabel className="text-base">Servicios (Generales) - Opcional</FormLabel>
                           <FormDescription>
                             Selecciona los servicios generales para el filtrado rápido en la
-                            página principal.
+                            página principal. (Opcional)
                           </FormDescription>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -755,18 +818,19 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                                         onCheckedChange={(checked) => {
                                           return checked
                                             ? field.onChange([
-                                                ...(field.value || []),
-                                                service.name,
-                                              ])
+                                              ...(field.value || []),
+                                              service.name,
+                                            ])
                                             : field.onChange(
-                                                (field.value || [])?.filter(
-                                                  (value: string) => value !== service.name
-                                                )
-                                              );
+                                              (field.value || [])?.filter(
+                                                (value: string) => value !== service.name
+                                              )
+                                            );
                                         }}
                                       />
                                     </FormControl>
                                     <FormLabel className="font-normal flex items-center gap-2">
+                                      {service.icon && <service.icon className="h-4 w-4" />}
                                       {service.name}
                                     </FormLabel>
                                   </FormItem>
@@ -787,7 +851,7 @@ export default function FormularioNotaria({ isOpen, onClose, notaria }: Formular
                     <h3 className="text-lg font-medium">Servicios Detallados y Requisitos</h3>
                     <p className="text-sm text-muted-foreground">
                       Añade los servicios específicos con sus requisitos para la página de
-                      detalle.
+                      detalle. Al menos un servicio debe tener una categoría asignada.
                     </p>
                   </div>
                   {fields.map((field, serviceIndex) => (
@@ -958,6 +1022,35 @@ function ItemServicioDetallado({
         )}
       />
 
+      {/* Categoría del Servicio */}
+      <FormField
+        control={form.control}
+        name={`detailedServices.${serviceIndex}.category`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Categoría del Servicio</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona una categoría" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {Object.values(TODOS_LOS_SERVICIOS).map((service) => (
+                  <SelectItem key={service.name} value={service.name}>
+                    {service.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <FormDescription>
+              Esto determina el icono que se mostrará si no hay imagen personalizada.
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Precio */}
       <FormField
         control={form.control}
@@ -1031,77 +1124,27 @@ function ItemServicioDetallado({
       </div>
 
       {/* Imágenes */}
-      <div>
-        <FormLabel>Imágenes del Servicio</FormLabel>
-        <FormDescription>Añade imágenes para el carrusel.</FormDescription>
-        <div className="space-y-3 mt-2">
-          {imgFields.map((field, imgIndex) => {
-            const imagesArray =
-              form.watch(`detailedServices.${serviceIndex}.images`) || [];
-            const imageValue = imagesArray[imgIndex];
-            const previewSrc =
-              previews[imgIndex] ||
-              (imageValue?.startsWith("http") || imageValue?.startsWith("data:")
-                ? imageValue
-                : null);
-
-            return (
-              <div key={field.id} className="flex items-center gap-2">
-                {previewSrc && (
-                  <Image
-                    src={previewSrc}
-                    alt="Preview"
-                    width={40}
-                    height={40}
-                    className="rounded-md object-cover"
-                  />
-                )}
-                <div className="flex-grow text-sm text-muted-foreground truncate">
-                  {imageValue?.startsWith("placeholder")
-                    ? imageValue.replace("placeholder-for-file-", "")
-                    : imageValue?.startsWith("http") || imageValue?.startsWith("data:")
-                    ? "Imagen guardada"
-                    : "Selecciona una imagen"}
-                </div>
-
-                <Input
-                  type="file"
-                  ref={(el) => { fileInputRefs.current[imgIndex] = el; }}
-                  className="hidden"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={(e) => handleServiceImageUpload(e, imgIndex)}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-9 w-9 shrink-0"
-                  onClick={() => fileInputRefs.current[imgIndex]?.click()}
-                >
-                  <Upload className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  className="h-9 w-9 shrink-0"
-                  onClick={() => removeServiceImage(imgIndex)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            );
-          })}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => appendImg("")}
-          >
-            <ImagePlus className="mr-2 h-4 w-4" /> Añadir Imagen
-          </Button>
-        </div>
-      </div>
+      <FormField
+        control={form.control}
+        name={`detailedServices.${serviceIndex}.images`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Imágenes del Servicio</FormLabel>
+            <FormDescription>
+              Sube hasta 5 imágenes para este servicio. Se mostrarán en un carrusel automático.
+            </FormDescription>
+            <FormControl>
+              <ImageUploader
+                images={field.value || []}
+                onImagesChange={field.onChange}
+                maxImages={5}
+                maxSizeMB={2}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       {/* Video */}
       <FormField

@@ -11,11 +11,30 @@ export type ServicioGeneral = {
 export type ServicioDetallado = {
   slug: string;
   name: string;
+  category?: string; // Categoría del servicio (ej: "Derecho Inmobiliario", "Derecho Corporativo")
   price?: number;
   requisitos: string[];
   images?: string[];
   videoUrl?: string;
 };
+
+// ===== TIPOS DE HORARIOS =====
+
+export type TimeSlot = {
+  start: string;  // Formato "HH:mm" (ej: "08:00")
+  end: string;    // Formato "HH:mm" (ej: "18:00")
+};
+
+export type DaySchedule = {
+  day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+  dayLabel: string; // Nombre en español (ej: "Lunes")
+  isOpen: boolean;
+  slots: TimeSlot[];
+};
+
+export type Schedule = DaySchedule[];
+
+// ===== TIPO NOTARIA =====
 
 export type Notaria = {
   id: number;
@@ -31,6 +50,8 @@ export type Notaria = {
   tiktokUrl?: string;
   linkedinUrl?: string;
   available: boolean;
+  autoAvailability?: boolean; // Si true, calcula disponibilidad automáticamente según horarios
+  schedule?: Schedule; // Horarios de atención por día de la semana
   services: string[];
   avatarUrl: string;
   rating: number;

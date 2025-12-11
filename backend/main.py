@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
-from .routers import auth, usuarios, notarias, comentarios, anuncios, upload, metricas
+from .routers import auth, usuarios, notarias, comentarios, anuncios, upload, metricas, suscripciones
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Depends, HTTPException, status
 from dotenv import load_dotenv
@@ -51,6 +51,7 @@ app.include_router(usuarios.router)
 app.include_router(notarias.router, prefix="/notarias", tags=["notarias"])
 app.include_router(comentarios.router, prefix="/comentarios", tags=["comentarios"])
 app.include_router(anuncios.router, prefix="/anuncios", tags=["anuncios"])
+app.include_router(suscripciones.router, prefix="/suscripciones", tags=["suscripciones"])
 app.include_router(upload.router, prefix="/upload", tags=["upload"])
 app.include_router(metricas.router, prefix="/metricas", tags=["metricas"])
 

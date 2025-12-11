@@ -31,6 +31,8 @@ FIELD_MAPPING = {
     "tiktokUrl": "tiktok_url",
     "linkedinUrl": "linkedin_url",
     "observations": "observaciones",
+    "autoAvailability": "auto_disponibilidad",
+    "schedule": "horarios_json",
     "commentSummary": "resumen_coment",
     "createdAt": "creado_en",
     "userId": "usuario_id"
@@ -225,6 +227,7 @@ def create_notaria(
             ds_data = ds.dict()
             ds_mapping = {
                 "name": "nombre",
+                "category": "categoria",
                 "price": "precio",
                 "images": "imagenes",
                 "videoUrl": "video_url"
@@ -283,6 +286,7 @@ def update_notaria(
             ds_data = ds.dict()
             ds_mapping = {
                 "name": "nombre",
+                "category": "categoria",
                 "price": "precio",
                 "images": "imagenes",
                 "videoUrl": "video_url"

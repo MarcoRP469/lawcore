@@ -1,0 +1,36 @@
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:hsl(210, 70%, 50%);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:hsl(210, 70%, 40%);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#grad2)"/>
+  <circle cx="200" cy="200" r="140" fill="rgba(255,255,255,0.1)"/>
+  
+  <!-- Casa/Edificio -->
+  <g transform="translate(200, 220)">
+    <!-- Base del edificio -->
+    <rect x="-50" y="-40" width="100" height="80" fill="rgba(255,255,255,0.95)" stroke="rgba(34, 40, 49, 0.5)" stroke-width="3"/>
+    
+    <!-- Techo -->
+    <path d="M -60,-40 L 0,-80 L 60,-40 Z" fill="rgba(34, 40, 49, 0.8)"/>
+    
+    <!-- Ventanas -->
+    <rect x="-35" y="-25" width="20" height="20" fill="rgba(100, 150, 200, 0.6)" stroke="rgba(34, 40, 49, 0.3)" stroke-width="2"/>
+    <rect x="15" y="-25" width="20" height="20" fill="rgba(100, 150, 200, 0.6)" stroke="rgba(34, 40, 49, 0.3)" stroke-width="2"/>
+    
+    <!-- Puerta -->
+    <rect x="-15" y="5" width="30" height="35" fill="rgba(139, 90, 43, 0.8)" stroke="rgba(34, 40, 49, 0.3)" stroke-width="2" rx="2"/>
+    <circle cx="5" cy="22" r="2" fill="rgba(255, 215, 0, 0.9)"/>
+    
+    <!-- Llave -->
+    <g transform="translate(0, -100)">
+      <circle cx="0" cy="0" r="12" fill="rgba(255, 215, 0, 0.9)" stroke="rgba(34, 40, 49, 0.5)" stroke-width="2"/>
+      <circle cx="0" cy="0" r="6" fill="none" stroke="rgba(34, 40, 49, 0.5)" stroke-width="2"/>
+      <rect x="-3" y="8" width="6" height="30" fill="rgba(255, 215, 0, 0.9)" stroke="rgba(34, 40, 49, 0.5)" stroke-width="2"/>
+      <rect x="-3" y="28" width="6" height="5" fill="rgba(255, 215, 0, 0.9)"/>
+      <rect x="-3" y="35" width="6" height="3" fill="rgba(255, 215, 0, 0.9)"/>
+    </g>
+  </g>
+</svg>
