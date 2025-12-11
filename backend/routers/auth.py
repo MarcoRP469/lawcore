@@ -108,6 +108,19 @@ def get_current_user(token: str = Depends(database.oauth2_scheme), db: Session =
         raise credentials_exception
     return user
 
+def get_current_user_optional(token: str = Depends(database.oauth2_scheme_optional), db: Session = Depends(database.get_db)):
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            return None
+    except JWTError:
+        return None
+
+    user = db.query(models.Usuario).filter(models.Usuario.correo == email).first()
+    return user
 
 @router.get("/me", response_model=schemas.Usuario)
 def read_users_me(current_user: models.Usuario = Depends(get_current_user)):

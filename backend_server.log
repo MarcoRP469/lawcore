@@ -1,3 +1,160 @@
 INFO:     Will watch for changes in these directories: ['/app']
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [7495] using StatReload
+INFO:     Started reloader process [14350] using StatReload
+2025-12-11 07:57:29,478 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:29,478 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("usuarios")
+2025-12-11 07:57:29,478 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-11 07:57:29,483 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("registros_busqueda")
+2025-12-11 07:57:29,483 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-11 07:57:29,483 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("notarias")
+2025-12-11 07:57:29,484 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-11 07:57:29,484 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("notaria_visitas")
+2025-12-11 07:57:29,484 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-11 07:57:29,484 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("notaria_servicios_generales")
+2025-12-11 07:57:29,485 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-11 07:57:29,485 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("servicios_detallados")
+2025-12-11 07:57:29,485 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-11 07:57:29,485 INFO sqlalchemy.engine.Engine PRAGMA main.table_info("comentarios")
+2025-12-11 07:57:29,485 INFO sqlalchemy.engine.Engine [raw sql] ()
+2025-12-11 07:57:29,488 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     Started server process [14496]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:45252 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45268 - "GET /notarias HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:41,569 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:41,576 INFO sqlalchemy.engine.Engine SELECT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias
+2025-12-11 07:57:41,576 INFO sqlalchemy.engine.Engine [generated in 0.00037s] ()
+INFO:     127.0.0.1:45268 - "GET /notarias/ HTTP/1.1" 200 OK
+2025-12-11 07:57:41,580 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:45272 - "OPTIONS /notarias HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:45272 - "OPTIONS /notarias/ HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:45276 - "GET /notarias?search=ZZZZZZZNOTEXISTSZZZZZ HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:41,680 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:41,683 INFO sqlalchemy.engine.Engine SELECT DISTINCT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias LEFT OUTER JOIN notaria_servicios_generales ON notarias.id = notaria_servicios_generales.notaria_id
+WHERE lower(notarias.nombre) LIKE lower(?) ESCAPE '\' OR lower(notarias.distrito) LIKE lower(?) ESCAPE '\' OR lower(notaria_servicios_generales.servicio) LIKE lower(?) ESCAPE '\'
+2025-12-11 07:57:41,684 INFO sqlalchemy.engine.Engine [generated in 0.00037s] ('%ZZZZZZZNOTEXISTSZZZZZ%', '%ZZZZZZZNOTEXISTSZZZZZ%', '%ZZZZZZZNOTEXISTSZZZZZ%')
+2025-12-11 07:57:41,687 INFO sqlalchemy.engine.Engine INSERT INTO registros_busqueda (termino, usuario_id, cantidad_resultados) VALUES (?, ?, ?) RETURNING id, fecha
+2025-12-11 07:57:41,688 INFO sqlalchemy.engine.Engine [generated in 0.00026s] ('ZZZZZZZNOTEXISTSZZZZZ', None, 0)
+2025-12-11 07:57:41,689 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     127.0.0.1:45276 - "GET /notarias/?search=ZZZZZZZNOTEXISTSZZZZZ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45292 - "GET /notarias?search= HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:41,750 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:41,751 INFO sqlalchemy.engine.Engine SELECT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias
+2025-12-11 07:57:41,751 INFO sqlalchemy.engine.Engine [cached since 0.1752s ago] ()
+INFO:     127.0.0.1:45292 - "GET /notarias/?search= HTTP/1.1" 200 OK
+2025-12-11 07:57:41,753 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:45304 - "GET /notarias HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:41,802 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:41,803 INFO sqlalchemy.engine.Engine SELECT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias
+2025-12-11 07:57:41,803 INFO sqlalchemy.engine.Engine [cached since 0.2268s ago] ()
+INFO:     127.0.0.1:45304 - "GET /notarias/ HTTP/1.1" 200 OK
+2025-12-11 07:57:41,806 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:45318 - "GET /metricas/alertas-calidad HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:45334 - "GET /notarias?search=%C3%A1%C3%A9%C3%AD%C3%B3%C3%BA HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:41,861 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:41,861 INFO sqlalchemy.engine.Engine SELECT DISTINCT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias LEFT OUTER JOIN notaria_servicios_generales ON notarias.id = notaria_servicios_generales.notaria_id
+WHERE lower(notarias.nombre) LIKE lower(?) ESCAPE '\' OR lower(notarias.distrito) LIKE lower(?) ESCAPE '\' OR lower(notaria_servicios_generales.servicio) LIKE lower(?) ESCAPE '\'
+2025-12-11 07:57:41,861 INFO sqlalchemy.engine.Engine [cached since 0.1781s ago] ('%áéíóú%', '%áéíóú%', '%áéíóú%')
+2025-12-11 07:57:41,862 INFO sqlalchemy.engine.Engine INSERT INTO registros_busqueda (termino, usuario_id, cantidad_resultados) VALUES (?, ?, ?) RETURNING id, fecha
+2025-12-11 07:57:41,863 INFO sqlalchemy.engine.Engine [cached since 0.1752s ago] ('áéíóú', None, 0)
+2025-12-11 07:57:41,863 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     127.0.0.1:45334 - "GET /notarias/?search=%C3%A1%C3%A9%C3%AD%C3%B3%C3%BA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45344 - "GET /notarias?search=notar%C3%ADa%27s HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:41,924 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:41,928 INFO sqlalchemy.engine.Engine SELECT DISTINCT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias LEFT OUTER JOIN notaria_servicios_generales ON notarias.id = notaria_servicios_generales.notaria_id
+WHERE lower(notarias.nombre) LIKE lower(?) ESCAPE '\' OR lower(notarias.distrito) LIKE lower(?) ESCAPE '\' OR lower(notaria_servicios_generales.servicio) LIKE lower(?) ESCAPE '\'
+2025-12-11 07:57:41,928 INFO sqlalchemy.engine.Engine [cached since 0.2443s ago] ("%notaría's%", "%notaría's%", "%notaría's%")
+2025-12-11 07:57:41,929 INFO sqlalchemy.engine.Engine INSERT INTO registros_busqueda (termino, usuario_id, cantidad_resultados) VALUES (?, ?, ?) RETURNING id, fecha
+2025-12-11 07:57:41,929 INFO sqlalchemy.engine.Engine [cached since 0.2416s ago] ("notaría's", None, 0)
+2025-12-11 07:57:41,930 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     127.0.0.1:45344 - "GET /notarias/?search=notar%C3%ADa%27s HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45352 - "GET /notarias?search=test%40123 HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:41,986 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:41,987 INFO sqlalchemy.engine.Engine SELECT DISTINCT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias LEFT OUTER JOIN notaria_servicios_generales ON notarias.id = notaria_servicios_generales.notaria_id
+WHERE lower(notarias.nombre) LIKE lower(?) ESCAPE '\' OR lower(notarias.distrito) LIKE lower(?) ESCAPE '\' OR lower(notaria_servicios_generales.servicio) LIKE lower(?) ESCAPE '\'
+2025-12-11 07:57:41,987 INFO sqlalchemy.engine.Engine [cached since 0.3033s ago] ('%test@123%', '%test@123%', '%test@123%')
+2025-12-11 07:57:41,987 INFO sqlalchemy.engine.Engine INSERT INTO registros_busqueda (termino, usuario_id, cantidad_resultados) VALUES (?, ?, ?) RETURNING id, fecha
+2025-12-11 07:57:41,988 INFO sqlalchemy.engine.Engine [cached since 0.3002s ago] ('test@123', None, 0)
+2025-12-11 07:57:41,988 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     127.0.0.1:45352 - "GET /notarias/?search=test%40123 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45368 - "GET /notarias?search=%27SELECT+%2A+FROM%27 HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:42,048 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:42,048 INFO sqlalchemy.engine.Engine SELECT DISTINCT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias LEFT OUTER JOIN notaria_servicios_generales ON notarias.id = notaria_servicios_generales.notaria_id
+WHERE lower(notarias.nombre) LIKE lower(?) ESCAPE '\' OR lower(notarias.distrito) LIKE lower(?) ESCAPE '\' OR lower(notaria_servicios_generales.servicio) LIKE lower(?) ESCAPE '\'
+2025-12-11 07:57:42,049 INFO sqlalchemy.engine.Engine [cached since 0.3653s ago] ("%'SELECT * FROM'%", "%'SELECT * FROM'%", "%'SELECT * FROM'%")
+2025-12-11 07:57:42,050 INFO sqlalchemy.engine.Engine INSERT INTO registros_busqueda (termino, usuario_id, cantidad_resultados) VALUES (?, ?, ?) RETURNING id, fecha
+2025-12-11 07:57:42,050 INFO sqlalchemy.engine.Engine [cached since 0.3623s ago] ("'SELECT * FROM'", None, 0)
+2025-12-11 07:57:42,050 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     127.0.0.1:45368 - "GET /notarias/?search=%27SELECT+%2A+FROM%27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45384 - "GET /notarias?search=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:42,106 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:42,107 INFO sqlalchemy.engine.Engine SELECT DISTINCT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias LEFT OUTER JOIN notaria_servicios_generales ON notarias.id = notaria_servicios_generales.notaria_id
+WHERE lower(notarias.nombre) LIKE lower(?) ESCAPE '\' OR lower(notarias.distrito) LIKE lower(?) ESCAPE '\' OR lower(notaria_servicios_generales.servicio) LIKE lower(?) ESCAPE '\'
+2025-12-11 07:57:42,107 INFO sqlalchemy.engine.Engine [cached since 0.4237s ago] ('%aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%', '%aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%', '%aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%')
+2025-12-11 07:57:42,108 INFO sqlalchemy.engine.Engine INSERT INTO registros_busqueda (termino, usuario_id, cantidad_resultados) VALUES (?, ?, ?) RETURNING id, fecha
+2025-12-11 07:57:42,108 INFO sqlalchemy.engine.Engine [cached since 0.4207s ago] ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', None, 0)
+2025-12-11 07:57:42,109 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     127.0.0.1:45384 - "GET /notarias/?search=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa HTTP/1.1" 200 OK
+INFO:     127.0.0.1:45392 - "GET /notarias?search=test_search_1765439862.159063 HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:42,168 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:42,169 INFO sqlalchemy.engine.Engine SELECT DISTINCT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias LEFT OUTER JOIN notaria_servicios_generales ON notarias.id = notaria_servicios_generales.notaria_id
+WHERE lower(notarias.nombre) LIKE lower(?) ESCAPE '\' OR lower(notarias.distrito) LIKE lower(?) ESCAPE '\' OR lower(notaria_servicios_generales.servicio) LIKE lower(?) ESCAPE '\'
+2025-12-11 07:57:42,169 INFO sqlalchemy.engine.Engine [cached since 0.4853s ago] ('%test\\_search\\_1765439862.159063%', '%test\\_search\\_1765439862.159063%', '%test\\_search\\_1765439862.159063%')
+2025-12-11 07:57:42,170 INFO sqlalchemy.engine.Engine INSERT INTO registros_busqueda (termino, usuario_id, cantidad_resultados) VALUES (?, ?, ?) RETURNING id, fecha
+2025-12-11 07:57:42,170 INFO sqlalchemy.engine.Engine [cached since 0.4823s ago] ('test_search_1765439862.159063', None, 0)
+2025-12-11 07:57:42,171 INFO sqlalchemy.engine.Engine COMMIT
+INFO:     127.0.0.1:45392 - "GET /notarias/?search=test_search_1765439862.159063 HTTP/1.1" 200 OK
+2025-12-11 07:57:42,224 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:42,228 INFO sqlalchemy.engine.Engine SELECT registros_busqueda.termino AS registros_busqueda_termino, count(registros_busqueda.id) AS frecuencia
+FROM registros_busqueda
+WHERE registros_busqueda.fecha >= ? GROUP BY registros_busqueda.termino ORDER BY frecuencia DESC
+ LIMIT ? OFFSET ?
+2025-12-11 07:57:42,228 INFO sqlalchemy.engine.Engine [generated in 0.00040s] ('2025-11-11 07:57:42.223568', 10, 0)
+2025-12-11 07:57:42,231 INFO sqlalchemy.engine.Engine SELECT date(registros_busqueda.fecha) AS dia, count(registros_busqueda.id) AS total
+FROM registros_busqueda
+WHERE registros_busqueda.fecha >= ? GROUP BY dia ORDER BY dia
+2025-12-11 07:57:42,231 INFO sqlalchemy.engine.Engine [generated in 0.00024s] ('2025-11-11 07:57:42.223568',)
+2025-12-11 07:57:42,235 INFO sqlalchemy.engine.Engine SELECT registros_busqueda.termino AS registros_busqueda_termino, count(registros_busqueda.id) AS intentos_fallidos
+FROM registros_busqueda
+WHERE registros_busqueda.fecha >= ? AND registros_busqueda.cantidad_resultados = ? GROUP BY registros_busqueda.termino
+HAVING count(registros_busqueda.id) > ? ORDER BY intentos_fallidos DESC
+ LIMIT ? OFFSET ?
+2025-12-11 07:57:42,235 INFO sqlalchemy.engine.Engine [generated in 0.00024s] ('2025-11-11 07:57:42.223568', 0, 5, 20, 0)
+INFO:     127.0.0.1:45408 - "GET /metricas/tendencias-busqueda HTTP/1.1" 200 OK
+2025-12-11 07:57:42,236 INFO sqlalchemy.engine.Engine ROLLBACK
+INFO:     127.0.0.1:45410 - "GET /notarias HTTP/1.1" 307 Temporary Redirect
+2025-12-11 07:57:42,251 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:42,252 INFO sqlalchemy.engine.Engine SELECT notarias.id AS notarias_id, notarias.nombre AS notarias_nombre, notarias.direccion AS notarias_direccion, notarias.distrito AS notarias_distrito, notarias.telefono AS notarias_telefono, notarias.telefono_fijo AS notarias_telefono_fijo, notarias.correo AS notarias_correo, notarias.sitio_web AS notarias_sitio_web, notarias.facebook_url AS notarias_facebook_url, notarias.instagram_url AS notarias_instagram_url, notarias.tiktok_url AS notarias_tiktok_url, notarias.linkedin_url AS notarias_linkedin_url, notarias.disponible AS notarias_disponible, notarias.avatar_url AS notarias_avatar_url, notarias.calificacion AS notarias_calificacion, notarias.observaciones AS notarias_observaciones, notarias.resumen_coment AS notarias_resumen_coment, notarias.creado_en AS notarias_creado_en, notarias.latitud AS notarias_latitud, notarias.longitud AS notarias_longitud, notarias.total_visitas AS notarias_total_visitas, notarias.total_comentarios AS notarias_total_comentarios, notarias.tasa_conversion AS notarias_tasa_conversion, notarias.relevancia_score AS notarias_relevancia_score, notarias.usuario_id AS notarias_usuario_id
+FROM notarias
+2025-12-11 07:57:42,252 INFO sqlalchemy.engine.Engine [cached since 0.6762s ago] ()
+INFO:     127.0.0.1:45410 - "GET /notarias/ HTTP/1.1" 200 OK
+2025-12-11 07:57:42,255 INFO sqlalchemy.engine.Engine ROLLBACK
+2025-12-11 07:57:42,308 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2025-12-11 07:57:42,309 INFO sqlalchemy.engine.Engine SELECT registros_busqueda.termino AS registros_busqueda_termino, count(registros_busqueda.id) AS frecuencia
+FROM registros_busqueda
+WHERE registros_busqueda.fecha >= ? GROUP BY registros_busqueda.termino ORDER BY frecuencia DESC
+ LIMIT ? OFFSET ?
+2025-12-11 07:57:42,310 INFO sqlalchemy.engine.Engine [cached since 0.08178s ago] ('2025-11-11 07:57:42.307135', 10, 0)
+2025-12-11 07:57:42,312 INFO sqlalchemy.engine.Engine SELECT date(registros_busqueda.fecha) AS dia, count(registros_busqueda.id) AS total
+FROM registros_busqueda
+WHERE registros_busqueda.fecha >= ? GROUP BY dia ORDER BY dia
+2025-12-11 07:57:42,312 INFO sqlalchemy.engine.Engine [cached since 0.08105s ago] ('2025-11-11 07:57:42.307135',)
+2025-12-11 07:57:42,315 INFO sqlalchemy.engine.Engine SELECT registros_busqueda.termino AS registros_busqueda_termino, count(registros_busqueda.id) AS intentos_fallidos
+FROM registros_busqueda
+WHERE registros_busqueda.fecha >= ? AND registros_busqueda.cantidad_resultados = ? GROUP BY registros_busqueda.termino
+HAVING count(registros_busqueda.id) > ? ORDER BY intentos_fallidos DESC
+ LIMIT ? OFFSET ?
+2025-12-11 07:57:42,315 INFO sqlalchemy.engine.Engine [cached since 0.08024s ago] ('2025-11-11 07:57:42.307135', 0, 5, 20, 0)
+INFO:     127.0.0.1:45418 - "GET /metricas/tendencias-busqueda HTTP/1.1" 200 OK
+2025-12-11 07:57:42,321 INFO sqlalchemy.engine.Engine ROLLBACK
