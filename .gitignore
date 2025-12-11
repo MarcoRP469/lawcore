@@ -90,3 +90,5 @@ tmp/
 temp/
 backend.log
 backend\uploads/
+
+backend/uploads/
