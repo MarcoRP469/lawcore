@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/context/auth-provider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,7 +17,7 @@ import {
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdCreate } from '@/types/ad';
 import { Loader2, UploadCloud } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CrearAnuncioPage() {
     const { user, loading: authLoading } = useAuth(); // Asumiendo que existe un AuthContext
@@ -56,11 +56,12 @@ export default function CrearAnuncioPage() {
                 throw new Error("Por favor completa los campos requeridos");
             }
 
+            const token = localStorage.getItem("token");
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/anuncios/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${await user.getIdToken()}`, // Ajustar según AuthContext
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     ...formData,

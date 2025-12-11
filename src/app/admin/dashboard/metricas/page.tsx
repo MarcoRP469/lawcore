@@ -345,7 +345,7 @@ export default function PaginaMetricasDashboard() {
             <CardContent className="space-y-2">
               <div className="flex items-center justify-between">
                 <h4 className="font-semibold">Resumen Generado por IA:</h4>
-                {!resumenSeleccionado && notariaSeleccionada !== "all" && (
+                {notariaSeleccionada !== "all" && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -360,7 +360,7 @@ export default function PaginaMetricasDashboard() {
                     ) : (
                       <>
                         <Sparkles className="mr-2 h-4 w-4" />
-                        Generar Resumen
+                        {resumenSeleccionado ? "Regenerar Resumen" : "Generar Resumen"}
                       </>
                     )}
                   </Button>
