@@ -25,12 +25,16 @@ export function useData<T>(endpoint: string) {
   return { data, isLoading, error };
 }
 
-export function useOneData<T>(endpoint: string) {
+export function useOneData<T>(endpoint: string | null) {
     const [data, setData] = useState<T | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<any>(null);
   
     useEffect(() => {
+      if (!endpoint) {
+          setIsLoading(false);
+          return;
+      }
       const fetchData = async () => {
         try {
           const response = await api.get(endpoint);
