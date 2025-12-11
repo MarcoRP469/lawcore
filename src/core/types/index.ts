@@ -100,8 +100,8 @@ export type MetricasDashboard = {
   topNotarias: { name: string; views: number }[];
   comentariosRecientes: ComentarioReciente[];
   fuentesTrafico: FuenteTrafico[];
-  tendencias: TendenciaBusqueda;
-  alertas: AlertaCalidad[];
+  tendencias?: TendenciaBusqueda;
+  alertas?: { alertas: AlertaCalidad[] };
 }
 
 export type TendenciaBusqueda = {
