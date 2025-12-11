@@ -26,6 +26,7 @@ class Usuario(Base):
 
     comentarios = relationship("Comentario", back_populates="usuario")
     notarias = relationship("Notaria", back_populates="usuario")
+    anuncios = relationship("Anuncio", back_populates="usuario")
 
 class RegistroBusqueda(Base):
     __tablename__ = "registros_busqueda"
@@ -121,3 +122,19 @@ class Comentario(Base):
 
     notaria = relationship("Notaria", back_populates="comentarios")
     usuario = relationship("Usuario", back_populates="comentarios")
+
+class Anuncio(Base):
+    __tablename__ = "anuncios"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    usuario_id = Column(String(128), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False)
+    titulo = Column(String(255), nullable=False)
+    descripcion = Column(Text, nullable=False)
+    precio = Column(DECIMAL(10, 2), nullable=True)
+    tipo = Column(String(50), nullable=False) # oferta, demanda, promocion
+    imagen_url = Column(Text, nullable=True)
+    contacto = Column(String(255), nullable=True)
+    creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+
+    usuario = relationship("Usuario", back_populates="anuncios")
+

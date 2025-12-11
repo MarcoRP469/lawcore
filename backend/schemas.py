@@ -108,3 +108,25 @@ class Token(BaseConfigModel):
 
 class TokenData(BaseConfigModel):
     email: Optional[str] = None
+
+# --- ANUNCIOS ---
+class AnuncioBase(BaseConfigModel):
+    title: str = Field(validation_alias="titulo")
+    description: str = Field(validation_alias="descripcion")
+    price: Optional[float] = Field(default=None, validation_alias="precio")
+    type: str = Field(validation_alias="tipo") # oferta, demanda, promocion
+    imageUrl: Optional[str] = Field(default=None, validation_alias="imagen_url")
+    contact: Optional[str] = Field(default=None, validation_alias="contacto")
+
+class AnuncioCreate(AnuncioBase):
+    pass
+
+class Anuncio(AnuncioBase):
+    id: int
+    userId: str = Field(validation_alias="usuario_id")
+    createdAt: Optional[datetime] = Field(default=None, validation_alias="creado_en")
+    
+    # Campos enriquecidos si necesario (e.g. info del usuario)
+    userDisplayName: Optional[str] = None
+    userPhotoURL: Optional[str] = None
+
