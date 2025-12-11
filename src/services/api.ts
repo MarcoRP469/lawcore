@@ -2,8 +2,27 @@
 
 import axios from 'axios';
 
-// URL del backend Python. En desarrollo local es localhost:8000
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// URL del backend - Configuración dinámica
+const getApiUrl = (): string => {
+  // 1. Variable de entorno (más alta prioridad)
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // 2. Lógica según ambiente (fallback)
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:8000';
+    }
+  }
+  
+  // 3. Producción (último fallback)
+  return process.env.NEXT_PUBLIC_PRODUCTION_API_URL || 'https://api.lawcore.com';
+};
+
+const API_URL = getApiUrl();
 
 const api = axios.create({
   baseURL: API_URL,
@@ -43,6 +62,14 @@ api.interceptors.response.use(
 
 export const generateSummary = async (notariaId: number | string) => {
   return api.post(`/notarias/${notariaId}/generate-summary`);
+};
+
+export const getAnalyticsTrends = async () => {
+  return api.get('/metricas/tendencias-busqueda');
+};
+
+export const getQualityAlerts = async () => {
+  return api.get('/metricas/alertas-calidad');
 };
 
 export default api;
