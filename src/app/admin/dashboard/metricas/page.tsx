@@ -58,7 +58,7 @@ import type { Notaria, MetricasDashboard, ComentarioReciente, FuenteTrafico, Ten
 import { Skeleton } from "@/components/ui/skeleton"
 import { useData, useOneData } from "@/hooks/use-data";
 import { useUser } from "@/context/auth-provider";
-import { generateSummary, getAnalyticsTrends, getQualityAlerts } from "@/services/api";
+import { generateSummary } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -549,7 +549,7 @@ export default function PaginaMetricasDashboard() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {alertasCalidad?.alertas.map((a, i) => (
+                        {alertasCalidad?.alertas?.map((a, i) => (
                           <TableRow key={i}>
                             <TableCell className="font-bold">{a.nombre}</TableCell>
                             <TableCell className="text-right">{a.media}</TableCell>
@@ -570,7 +570,5 @@ export default function PaginaMetricasDashboard() {
         }
       </main >
     </div >
-  )
-}
   )
 }

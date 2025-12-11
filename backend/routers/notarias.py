@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
 from typing import List, Optional
 from .. import models, schemas, database
-from .auth import get_current_user
+from .auth import get_current_user, get_current_user_optional
 import uuid
 from ..ai_utils import generate_summary
 from ..utils.estadisticas import normalizar_valor, calcular_puntuacion_relevancia, calcular_distancia_haversine, calcular_tasa_conversion
@@ -49,7 +49,7 @@ def read_notarias(
     lng: Optional[float] = Query(None, description="Longitud del usuario"),
     owner_id: Optional[str] = Query(None, description="Filtrar por ID del propietario"),
     db: Session = Depends(database.get_db),
-    current_user: Optional[models.Usuario] = Depends(get_current_user) # Puede ser opcional para búsqueda pública
+    current_user: Optional[models.Usuario] = Depends(get_current_user_optional) # Puede ser opcional para búsqueda pública
 ):
     query = db.query(models.Notaria)
 
