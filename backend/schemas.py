@@ -56,6 +56,7 @@ class Comentario(ComentarioBase):
 class ServicioDetallado(BaseConfigModel):
     slug: str
     name: str = Field(validation_alias="nombre")
+    category: Optional[str] = Field(default=None, validation_alias="categoria")
     price: Optional[float] = Field(default=None, validation_alias="precio")
     requisitos: List[str]
     images: Optional[List[str]] = Field(default=None, validation_alias="imagenes")
@@ -81,6 +82,8 @@ class NotariaCreate(NotariaBase):
     tiktokUrl: Optional[str] = Field(default=None, alias="tiktok_url")
     linkedinUrl: Optional[str] = Field(default=None, alias="linkedin_url")
     observations: Optional[str] = Field(default=None, alias="observaciones")
+    autoAvailability: Optional[bool] = Field(default=False, alias="auto_disponibilidad")
+    schedule: Optional[Any] = Field(default=None, alias="horarios_json")
     detailedServices: Optional[List[ServicioDetallado]] = Field(default=None, alias="servicios_detallados")
     # Para superadmin que quiera asignar propietario
     ownerId: Optional[str] = Field(default=None, alias="usuario_id")
@@ -95,11 +98,50 @@ class Notaria(NotariaBase):
     linkedinUrl: Optional[str] = Field(default=None, validation_alias="linkedin_url")
     observations: Optional[str] = Field(default=None, validation_alias="observaciones")
     commentSummary: Optional[str] = Field(default=None, validation_alias="resumen_coment")
+    autoAvailability: Optional[bool] = Field(default=False, validation_alias="auto_disponibilidad")
+    schedule: Optional[Any] = Field(default=None, validation_alias="horarios_json")
     detailedServices: Optional[List[ServicioDetallado]] = Field(default=None, validation_alias="servicios_detallados")
     createdAt: Optional[datetime] = Field(default=None, validation_alias="creado_en")
 
     # Nuevo campo
     userId: Optional[str] = Field(default=None, validation_alias="usuario_id")
+
+# --- SUSCRIPCIONES ---
+class PlanSuscripcionBase(BaseConfigModel):
+    nombre: str
+    descripcion: Optional[str] = None
+    precio: float
+    limiteAnuncios: Optional[int] = Field(default=None, alias="limite_anuncios")
+    duracionDias: int = Field(default=30, alias="duracion_dias")
+    caracteristicas: Optional[List[str]] = None
+    activo: bool = True
+
+class PlanSuscripcionCreate(PlanSuscripcionBase):
+    pass
+
+class PlanSuscripcion(PlanSuscripcionBase):
+    id: int
+    createdAt: Optional[datetime] = Field(default=None, validation_alias="creado_en")
+    updatedAt: Optional[datetime] = Field(default=None, validation_alias="actualizado_en")
+
+class HistorialPagoBase(BaseConfigModel):
+    planId: int = Field(validation_alias="plan_id")
+    planNombre: str = Field(validation_alias="plan_nombre")
+    monto: float
+    metodoPago: Optional[str] = Field(default=None, alias="metodo_pago")
+    referenciaPago: Optional[str] = Field(default=None, alias="referencia_pago")
+    notas: Optional[str] = None
+
+class HistorialPagoCreate(HistorialPagoBase):
+    usuarioId: str = Field(alias="usuario_id")
+
+class HistorialPago(HistorialPagoBase):
+    id: int
+    usuarioId: str = Field(validation_alias="usuario_id")
+    estado: str
+    aprobadoPor: Optional[str] = Field(default=None, validation_alias="aprobado_por")
+    createdAt: Optional[datetime] = Field(default=None, validation_alias="creado_en")
+    aprobadoEn: Optional[datetime] = Field(default=None, validation_alias="aprobado_en")
 
 # --- AUTH ---
 class Token(BaseConfigModel):

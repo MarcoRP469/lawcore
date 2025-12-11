@@ -21,6 +21,12 @@ class Usuario(Base):
     # Mantener es_admin por compatibilidad legacy inmediata, pero el source of truth será role
     es_admin = Column(Boolean, default=False, nullable=False)
     
+    # Campos de suscripción
+    plan_suscripcion = Column(String(20), default='ninguno', nullable=False, comment="Plan de suscripción actual")
+    fecha_inicio_suscripcion = Column(TIMESTAMP, nullable=True, comment="Fecha de inicio de la suscripción")
+    fecha_fin_suscripcion = Column(TIMESTAMP, nullable=True, comment="Fecha de fin de la suscripción")
+    estado_suscripcion = Column(String(20), default='inactiva', nullable=False, comment="Estado: activa, inactiva, vencida")
+    
     creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
     hashed_password = Column(String(255), nullable=True) 
 
@@ -53,6 +59,8 @@ class Notaria(Base):
     tiktok_url = Column(String(255), nullable=True)
     linkedin_url = Column(String(255), nullable=True)
     disponible = Column(Boolean, default=False, nullable=False)
+    auto_disponibilidad = Column(Boolean, default=False, nullable=False, comment="Si true, calcula disponibilidad automáticamente según horarios")
+    horarios_json = Column(JSON, nullable=True, comment="Horarios de atención por día de la semana")
     avatar_url = Column(Text, nullable=True)
     calificacion = Column(DECIMAL(3, 2), default=0.00, nullable=False)
     observaciones = Column(Text, nullable=True)
@@ -103,6 +111,7 @@ class ServicioDetallado(Base):
     notaria_id = Column(Integer, ForeignKey("notarias.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     slug = Column(String(255), nullable=False)
     nombre = Column(String(255), nullable=False)
+    categoria = Column(String(100), nullable=True)
     precio = Column(DECIMAL(10, 2), nullable=True)
     requisitos = Column(JSON, nullable=True)
     imagenes = Column(JSON, nullable=True)
@@ -137,4 +146,37 @@ class Anuncio(Base):
     creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
 
     usuario = relationship("Usuario", back_populates="anuncios")
+
+class PlanSuscripcion(Base):
+    __tablename__ = "planes_suscripcion"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String(50), nullable=False, unique=True)
+    descripcion = Column(Text, nullable=True)
+    precio = Column(DECIMAL(10, 2), nullable=False)
+    limite_anuncios = Column(Integer, nullable=True, comment="NULL = ilimitado")
+    duracion_dias = Column(Integer, default=30, nullable=False)
+    caracteristicas = Column(JSON, nullable=True, comment="Array de características del plan")
+    activo = Column(Boolean, default=True, nullable=False)
+    creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    actualizado_en = Column(TIMESTAMP, nullable=True, onupdate=func.now())
+
+class HistorialPago(Base):
+    __tablename__ = "historial_pagos"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    usuario_id = Column(String(128), ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False)
+    plan_id = Column(Integer, ForeignKey("planes_suscripcion.id", ondelete="SET NULL"), nullable=True)
+    plan_nombre = Column(String(50), nullable=False, comment="Guardamos el nombre por si se elimina el plan")
+    monto = Column(DECIMAL(10, 2), nullable=False)
+    metodo_pago = Column(String(50), nullable=True, comment="transferencia, efectivo, tarjeta, etc")
+    estado = Column(String(20), default='pendiente', nullable=False, comment="pendiente, aprobado, rechazado")
+    referencia_pago = Column(String(255), nullable=True, comment="Número de operación o referencia")
+    notas = Column(Text, nullable=True, comment="Notas del admin sobre el pago")
+    aprobado_por = Column(String(128), ForeignKey("usuarios.id", ondelete="SET NULL"), nullable=True)
+    creado_en = Column(TIMESTAMP, server_default=func.now(), nullable=False)
+    aprobado_en = Column(TIMESTAMP, nullable=True)
+
+    usuario = relationship("Usuario", foreign_keys=[usuario_id])
+    plan = relationship("PlanSuscripcion")
 
