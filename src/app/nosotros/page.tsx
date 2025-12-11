@@ -1,6 +1,7 @@
 
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Handshake, Target, TestTube, Search, Shield, Users } from "lucide-react";
+import { Handshake, Target, TestTube, Search, Shield, Users, ArrowLeft } from "lucide-react";
 import type { Metadata } from 'next';
 import Link from "next/link";
 
@@ -23,7 +24,16 @@ export default function PaginaNosotros() {
   return (
     <div className="bg-background text-foreground">
       <div className="container mx-auto px-4 py-16">
+
         <div className="mx-auto max-w-4xl">
+          <div className="mb-6">
+            <Button variant="ghost" asChild>
+              <Link href="/">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Volver al inicio
+              </Link>
+            </Button>
+          </div>
           <header className="text-center mb-16">
             <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl font-headline text-primary">
               Sobre LawCore
@@ -61,21 +71,21 @@ export default function PaginaNosotros() {
                 <CardTitle className="text-2xl">Nuestros Valores</CardTitle>
               </CardHeader>
               <CardContent className="grid md:grid-cols-2 gap-8">
-                <ValueCard icon={<Shield className="h-6 w-6"/>} title="Independencia">
+                <ValueCard icon={<Shield className="h-6 w-6" />} title="Independencia">
                   No favorecemos a ninguna notaría. La información se presenta de forma objetiva para que tú decidas.
                 </ValueCard>
-                <ValueCard icon={<Search className="h-6 w-6"/>} title="Claridad">
+                <ValueCard icon={<Search className="h-6 w-6" />} title="Claridad">
                   Transformamos datos complejos en información fácil de entender, para que tomes decisiones informadas.
                 </ValueCard>
-                <ValueCard icon={<Users className="h-6 w-6"/>} title="Servicio a la Comunidad">
+                <ValueCard icon={<Users className="h-6 w-6" />} title="Servicio a la Comunidad">
                   Creemos que el acceso a información clara es un derecho. Nuestra plataforma es y será siempre gratuita para los usuarios.
                 </ValueCard>
-                <ValueCard icon={<Handshake className="h-6 w-6"/>} title="Transparencia">
+                <ValueCard icon={<Handshake className="h-6 w-6" />} title="Transparencia">
                   Comunicamos abiertamente cómo funciona nuestra plataforma y cómo se financia.
                 </ValueCard>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-2xl">Metodología de Comparación</CardTitle>
@@ -106,7 +116,7 @@ export default function PaginaNosotros() {
                   <h3 className="font-semibold text-primary">Alcance y Limitaciones</h3>
                   <p>No somos una notaría ni brindamos asesoría legal. La información es de carácter informativo y puede variar. Verifica siempre los datos directamente con la notaría antes de iniciar un trámite.</p>
                 </div>
-                 <div>
+                <div>
                   <h3 className="font-semibold text-primary">Transparencia y Correcciones</h3>
                   <p>¿Detectaste un error? Escríbenos a través de nuestra <Link href="/contacto" className="underline hover:text-primary">página de contacto</Link> y lo revisaremos en un máximo de 72 horas.</p>
                 </div>
