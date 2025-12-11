@@ -38,19 +38,20 @@ def obtener_tendencias_busqueda(
     )
     
     # 2. Tendencia de Volumen (Agrupado por día para gráficas)
-    # Nota: SQLite/MySQL syntax varies. Asumiendo que usamos 'func.date' standard or MySQL.
-    # En producción real verificar dialecto. Aquí uso genérico con extract o cast si fuera necesario.
-    # Para simplicidad, sacamos los datos y agrupamos en python o usamos func.date() si es MySQL.
-    volumen_diario = (
-        db.query(
-            func.date(models.RegistroBusqueda.fecha).label("dia"),
-            func.count(models.RegistroBusqueda.id).label("total")
-        )
+    # SQLite compatibility for 'func.date' (which works in many SQL dialects but just in case)
+    # We fetch data and group in Python to ensure compatibility across SQLite/MySQL without complex dialect checks here.
+    registros = (
+        db.query(models.RegistroBusqueda.fecha)
         .filter(models.RegistroBusqueda.fecha >= fecha_limite)
-        .group_by("dia")
-        .order_by("dia")
         .all()
     )
+
+    volumen_map = {}
+    for r in registros:
+        day_str = r.fecha.strftime("%Y-%m-%d")
+        volumen_map[day_str] = volumen_map.get(day_str, 0) + 1
+
+    volumen_diario = sorted(volumen_map.items()) # List of tuples (date, count)
 
     # 3. Brechas de Datos (0 resultados)
     brechas = (
@@ -69,7 +70,7 @@ def obtener_tendencias_busqueda(
 
     return {
         "top_terminos": [{"termino": t[0], "frecuencia": t[1]} for t in top_terminos],
-        "tendencia": [{"fecha": str(v[0]), "total": v[1]} for v in volumen_diario],
+        "tendencia": [{"fecha": v[0], "total": v[1]} for v in volumen_diario],
         "brechas_datos": [{"termino": b[0], "intentos": b[1]} for b in brechas]
     }
 
