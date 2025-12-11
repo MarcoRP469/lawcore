@@ -8,7 +8,6 @@ from jose import JWTError, jwt
 from .auth import SECRET_KEY, ALGORITHM, get_current_user
 
 router = APIRouter(
-    prefix="/anuncios",
     tags=["anuncios"],
     responses={404: {"description": "Not found"}},
 )
