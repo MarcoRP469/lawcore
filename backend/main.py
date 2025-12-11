@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
-from .routers import auth, notarias, comentarios, usuarios, upload, metricas
+from .routers import auth, usuarios, notarias, comentarios, ai_chat, anuncios, upload, metricas
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Depends, HTTPException, status
 from dotenv import load_dotenv
@@ -49,7 +49,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(notarias.router, prefix="/notarias", tags=["notarias"])
 app.include_router(comentarios.router, prefix="/comentarios", tags=["comentarios"])
-app.include_router(usuarios.router)
+app.include_router(ai_chat.router)
+app.include_router(anuncios.router, prefix="/anuncios", tags=["anuncios"])
 app.include_router(upload.router, prefix="/upload", tags=["upload"])
 app.include_router(metricas.router, prefix="/metricas", tags=["metricas"])
 
