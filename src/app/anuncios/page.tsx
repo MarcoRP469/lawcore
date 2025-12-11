@@ -21,10 +21,6 @@ export default function AnunciosPage() {
     const [filterType, setFilterType] = useState<string>("todos");
     const [searchTerm, setSearchTerm] = useState("");
 
-    useEffect(() => {
-        fetchAds();
-    }, [filterType]);
-
     const fetchAds = async () => {
         setLoading(true);
         try {
@@ -43,6 +39,10 @@ export default function AnunciosPage() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchAds();
+    }, [filterType]);
 
     const filteredAds = ads.filter(ad =>
         ad.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
